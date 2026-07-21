@@ -23,7 +23,10 @@
         <img src="<?php echo esc_url( get_template_directory_uri() . '/images/logo-horizontal.svg' ); ?>" alt="<?php bloginfo( 'name' ); ?>">
       <?php endif; ?>
     </a>
-    <nav class="site-nav" aria-label="メインナビゲーション">
+    <button class="nav-toggle" aria-controls="site-nav" aria-expanded="false" aria-label="メニューを開閉する">
+      <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+    </button>
+    <nav class="site-nav" id="site-nav" aria-label="メインナビゲーション">
       <?php
       wp_nav_menu(
         array(
@@ -36,6 +39,7 @@
       ?>
     </nav>
   </div>
+  <div class="nav-backdrop"></div>
 </header>
 
 <main id="main">

@@ -108,6 +108,87 @@ img, svg { max-width: 100%; display: block; }
   text-decoration: none;
 }
 
+/* ---------- hamburger menu (mobile nav) ---------- */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.nav-toggle .bar {
+  display: block;
+  width: 26px;
+  height: 3px;
+  background: var(--color-text);
+  border-radius: 2px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.nav-toggle[aria-expanded="true"] .bar:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] .bar:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] .bar:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+.nav-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 20, 15, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 15;
+}
+
+.nav-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body.nav-open { overflow: hidden; }
+
+@media (max-width: 760px) {
+  .nav-toggle { display: inline-flex; }
+
+  .site-nav {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: min(80vw, 320px);
+    background: var(--color-card);
+    box-shadow: -8px 0 24px rgba(0, 0, 0, 0.15);
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    padding: 90px 24px 24px;
+    z-index: 20;
+    overflow-y: auto;
+  }
+
+  .site-nav.is-open { transform: translateX(0); }
+
+  .site-nav ul {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .site-nav a {
+    display: block;
+    padding: 14px 4px;
+    font-size: 1.05rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 0 16px; }
+  .hero { padding: 40px 0 28px; }
+  .section { padding: 36px 0; }
+}
+
 /* ---------- hero ---------- */
 .hero {
   padding: 56px 0 40px;
@@ -123,7 +204,7 @@ img, svg { max-width: 100%; display: block; }
 }
 
 .hero h1 {
-  font-size: 2.2rem;
+  font-size: clamp(1.5rem, 5vw, 2.2rem);
   margin-bottom: 18px;
 }
 

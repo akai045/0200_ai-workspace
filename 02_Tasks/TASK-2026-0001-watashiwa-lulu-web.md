@@ -24,6 +24,7 @@ acceptance_criteria:
   - サービス詳細ページに料金体系（5プラン）と開始までの流れが掲載されている
   - よくある質問ページに提供された7件のQ&Aが掲載されている
   - 外部送信・本番デプロイ・実際のフォーム送信設定を行っていない
+  - スマートフォン幅（〜760px）でヘッダーのナビゲーションがハンバーガーメニューに切り替わり、開閉できる（html-preview・wordpress双方）
 prohibited:
   - 外部サービスへの画像生成依頼・アップロード
   - 本番サーバーへの反映やドメイン設定
@@ -61,7 +62,12 @@ deadline:
 - 対立的推論の3点（年齢層に不適合なUI／WPテーマ規約不足）はデザイン（大きめ文字・低装飾・テーマヘッダー完備）とテンプレート階層網羅で手当て済み。
 - お問合せフォームの実送信設定・本番デプロイは行っていない（prohibited を遵守）。
 
-## 検査結果（Checker）
+## 作業ログ（Doer・改修・2026-07-21）
+- 人間より「レスポンシブデザインで再度作成、スマートフォンはハンバーガーメニューに」との改修依頼を受け、status を `approval` から `doing` に戻して着手。
+- ヘッダーナビゲーションを760px以下でオフキャンバス＋ハンバーガーメニュー化（`js/nav.js` を新規追加、CSSに `.nav-toggle` / `.site-nav`（モバイル時）/ `.nav-backdrop` を追加）。html-preview・wordpress双方に同内容を反映。
+- hero見出しのフォントサイズを `clamp()`化、480px以下でコンテナ余白・セクション余白を縮小するなど、既存のグリッド類（.grid-3/.grid-2/.pricing/.steps/.post-card）以外の細部もモバイルで見やすいよう調整。
+
+## 検査結果（Checker・初回・2026-07-21）
 検査日: 2026-07-21／検査者: checker（Doerの作業には関与していない独立検証）
 検査対象: `00_Inbox/prompt01.md`（原文）、`03_Outputs/PROJECT-001-watashiwa-lulu/` 配下の logo/・wordpress/・html-preview/ 全ファイル
 
@@ -98,3 +104,36 @@ deadline:
 ### 補足（観察事項・差し戻し理由ではない）
 - Q3・Q7以外にも上記の軽微な表記統一・誤字訂正が存在するが、いずれも意味を変えていないため受入条件上は問題なし。今後は「意図的な修正」の作業ログをより網羅的に残すことを推奨する。
 - Google Fontsを外部CDN（fonts.googleapis.com）から読み込む実装になっている。これは prohibited（外部サービスへの画像生成依頼・アップロード／本番デプロイ／フォーム実送信設定）のいずれにも該当せず受入条件上は問題ないが、実運用時にプライバシーポリシー等で外部リソース読込に触れる必要がある点は人間側の認識事項として記録する。
+
+## 検査結果（Checker・改修後・レスポンシブ／ハンバーガーメニュー）
+検査日: 2026-07-21／検査者: checker（Doerの改修作業には関与していない独立検証。ブラウザでの実操作は行わず、コードの静止解析＝タグ・要素対応・CSS構文・JSロジックの筋道で判定）
+検査対象: `02_Tasks/TASK-2026-0001-watashiwa-lulu-web.md`のacceptance_criteria全8件、`03_Outputs/PROJECT-001-watashiwa-lulu/` 配下 html-preview 6ページ・css/style.css・js/nav.js、wordpress の header.php・footer.php・functions.php・style.css・js/nav.js
+
+### 既存6件の再確認
+前回（初回）検査時に既に「適合」と判定済みの1〜7件について、今回の改修でロゴ・テンプレート構成・掲載内容・外部送信有無に変更がないことを確認した（改修はナビゲーション/レスポンシブ関連のみ）。既存判定を維持する。
+
+1. ロゴSVGとコンセプト資料 → **適合**（変更なし）
+2. WordPressテンプレートPHPファイル6項目分 → **適合**（変更なし。header.php/footer.php/functions.phpへの追記はナビゲーション関連のみで、テンプレート階層自体は不変）
+3. 静的HTML6項目分（CSS適用済み） → **適合**（変更なし。追加要素があっても既存の見た目確認可能な状態は維持）
+4. トップページのコンセプト・サービス概要・FAQ上位3件 → **適合**（変更なし）
+5. サービス詳細ページの料金体系（5プラン）・開始までの流れ → **適合**（変更なし）
+6. よくある質問ページの7件のQ&A → **適合**（変更なし）
+7. 外部送信・本番デプロイ・実フォーム送信設定なし → **適合**（変更なし。`contact.html`／`page-contact.php`のフォーム`action`、`functions.php`に送信処理なしを再確認）
+
+### 新規条件（8件目）の検証
+**8. スマートフォン幅（〜760px）でヘッダーのナビゲーションがハンバーガーメニューに切り替わり、開閉できる（html-preview・wordpress双方）** → **適合**
+
+検証した根拠：
+
+- **html-preview 6ページ全ての整合性**：`index.html`/`service.html`/`faq.html`/`contact.html`/`blog.html`/`blog-post.html` 全てで `<button class="nav-toggle" aria-controls="site-nav" aria-expanded="false" aria-label="メニューを開閉する">`（内部に `<span class="bar">` ×3）、`<nav class="site-nav" id="site-nav">`、`<div class="nav-backdrop"></div>`、`</body>`直前の`<script src="js/nav.js" defer></script>` が漏れなく揃っている（grepで全6ファイルを突き合わせ、コピー漏れなし）。`aria-controls="site-nav"` と `id="site-nav"` の対応も6ページ全てで正しい。各ファイルの`<html>`/`<body>`タグの対応数も確認し、閉じ忘れは見当たらない。
+- **CSSの構文・整合性**（html-preview/css/style.css・wordpress/style.css、両者ほぼ同一構成）：`.nav-toggle`は既定`display:none`、`@media (max-width: 760px)`内で`display:inline-flex`に切替（＝760px以下でのみ表示）。`.site-nav`は同メディアクエリ内で`position:fixed; right:0; width:min(80vw,320px); transform:translateX(100%)`によりデスクトップ幅では通常フロー、モバイル幅では画面外に退避。`.site-nav.is-open{transform:translateX(0)}`（クラス2つでセレクタ詳細度が`.site-nav`単体より高いため、CSSの記述順に関係なく確実に上書きされる）。`.nav-backdrop`は`z-index:15`、`.site-nav`は`z-index:20`で、開いたナビがバックドロップの上に来る整合した重なり順になっている。ヘッダー自体は`position:sticky`のみでtransform等を持たないため、`position:fixed`の子要素（`.nav-backdrop`・`.site-nav`）の含有ブロックにはならず、ビューポート基準で正しく全画面に配置される。ハンバーガーアイコンの変形（`.nav-toggle[aria-expanded="true"] .bar:nth-child(n)`）は属性セレクタでJSの`aria-expanded`更新と直結しており矛盾なし。760px以下の別の`@media`ブロック（グリッド列数変更用）と競合はない。
+- **`js/nav.js`のロジック**（html-preview版・wordpress版は完全に同一内容）：`toggle`クリックで`.site-nav`の`is-open`有無を見て開閉トグル、`backdrop`クリックで`closeNav()`、`.site-nav`内の全`<a>`クリックで`closeNav()`、`document`の`keydown`で`Escape`検知時に`closeNav()`、開閉時に`toggle`の`aria-expanded`属性を`true`/`false`に更新し`body`に`nav-open`クラスを付与/除去（スクロールロック用のCSSと連動）。要求された「トグルボタン開閉」「backdropクリックで閉じる」「リンククリックで閉じる」「Escキーで閉じる」「aria-expanded更新」の5点全てを実装コード上で確認した。
+- **WordPress側の対応関係**：`header.php`にhtml-preview側と同一構造の`nav-toggle`ボタン・`site-nav`（`id="site-nav"`）・`nav-backdrop`を確認。`functions.php`の`lulu_enqueue_assets()`で`wp_enqueue_script('lulu-nav', .../js/nav.js', array(), ..., true)`（第4引数`true`＝`in_footer`）で登録されており、`footer.php`で`wp_footer()`が呼ばれているため、html-preview側の「`</body>`直前に`defer`スクリプト」と機能的に同等の位置・タイミングでスクリプトが出力される。`wordpress/js/nav.js`はhtml-preview側と同一内容。CSS側も`wordpress/style.css`にhtml-preview側と同一構成の`.nav-toggle`/`.site-nav`/`.nav-backdrop`/`@media (max-width:760px)`ブロックがあり、`wp_nav_menu()`が出力する`<ul>`要素も`.site-nav ul`のセレクタでモバイル時に縦積みレイアウトになる。
+
+**判定不能としなかった理由**：実際のブラウザ・実機での目視確認（開閉アニメーションの見た目、タッチ操作感）は行っていないが、これは受入条件の文言（「ハンバーガーメニューに切り替わり、開閉できる」）がコードレベルの実装で判断可能な範囲であり、要素の対応関係・CSS構文・JSロジックのいずれにも矛盾や欠落が見当たらないため「適合」とする。
+
+### 総合判定
+既存6件＋新規1件、全8件 **適合**。不適合・判定不能はなし。差し戻し不要。status を `doing` → `checking` → `approval` に進める（Doerの改修完了報告を検査した結果、次は人間による最終承認`approval → done`待ち）。
+
+### 補足（観察事項・差し戻し理由ではない）
+- 初回検査時の補足（Google Fonts外部CDN読込・表記統一の作業ログ網羅性）は今回の改修範囲外のため再掲のみで、判定への影響なし。
