@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>お問合せ｜わたしはルル</title>
+<meta name="description" content="わたしはルルへのお問合せ・お申し込みはこちらのフォームから承っております。">
+<link rel="icon" href="images/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<a class="skip-link" href="#main">本文へ</a>
+
+<header class="site-header">
+  <div class="container">
+    <a class="site-logo" href="index.html"><img src="images/logo-horizontal.svg" alt="わたしはルル"></a>
+    <nav class="site-nav" aria-label="メインナビゲーション">
+      <ul>
+        <li><a href="index.html">トップ</a></li>
+        <li><a href="service.html">サービス内容</a></li>
+        <li><a href="faq.html">よくある質問</a></li>
+        <li><a href="blog.html">お知らせ・ブログ</a></li>
+        <li><a href="contact.html" aria-current="page">お問合せ</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero" style="padding-bottom:0;">
+    <div class="container">
+      <p class="tagline">CONTACT</p>
+      <h1>お問合せ・お申し込み</h1>
+      <p class="lead">
+        まずはお気軽にご相談ください。ご相談内容を確認のうえ、担当より電話またはメールでご連絡いたします。<br>
+        お電話でのお申し込みも承っております。
+      </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container" style="max-width:640px;">
+
+      <div class="form-note">
+        入力いただいた情報は、ご相談・サービスご提供のご連絡のみに利用します。第三者への提供は行いません。
+      </div>
+
+      <form action="#" method="post">
+        <div class="form-field">
+          <label for="name">お名前<span class="required">必須</span></label>
+          <input type="text" id="name" name="name" required>
+        </div>
+
+        <div class="form-field">
+          <label for="age">年齢<span class="required">必須</span></label>
+          <input type="number" id="age" name="age" min="0" required>
+        </div>
+
+        <div class="form-field">
+          <label for="tel">お電話番号<span class="required">必須</span></label>
+          <input type="tel" id="tel" name="tel" required>
+        </div>
+
+        <div class="form-field">
+          <label for="email">メールアドレス</label>
+          <input type="email" id="email" name="email">
+        </div>
+
+        <div class="form-field">
+          <label for="living">お住まいの状況</label>
+          <select id="living" name="living">
+            <option value="alone">一人暮らし</option>
+            <option value="family">家族と同居</option>
+            <option value="other">その他</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="cat_status">現在の猫の飼育状況</label>
+          <select id="cat_status" name="cat_status">
+            <option value="none">飼っていない（新たに迎えたい）</option>
+            <option value="have">すでに猫を飼っている</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="inquiry_type">ご相談内容<span class="required">必須</span></label>
+          <select id="inquiry_type" name="inquiry_type" required>
+            <option value="new">新しく猫を迎えたい</option>
+            <option value="support">今の猫のお世話について相談したい</option>
+            <option value="plan">料金・プランについて聞きたい</option>
+            <option value="other">その他</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="message">ご相談内容の詳細</label>
+          <textarea id="message" name="message" placeholder="ご不安なこと、ご質問など、どんなことでもお気軽にお書きください。"></textarea>
+        </div>
+
+        <div class="form-field">
+          <label>
+            <input type="checkbox" required style="width:auto;display:inline-block;margin-right:8px;">
+            サービス内容・料金・お支払い方法を確認しました
+          </label>
+        </div>
+
+        <p style="text-align:center;">
+          <button type="submit" class="btn">送信する</button>
+        </p>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div>
+      <img src="images/logo.svg" alt="わたしはルル" style="height:48px;margin-bottom:12px;">
+      <p>保護猫と、あたたかな暮らしを。<br>訪問サポート型の猫飼育支援サービスです。</p>
+    </div>
+    <nav class="foot-nav" aria-label="フッターナビゲーション">
+      <ul>
+        <li><a href="index.html">トップ</a></li>
+        <li><a href="service.html">サービス内容</a></li>
+        <li><a href="faq.html">よくある質問</a></li>
+        <li><a href="blog.html">お知らせ・ブログ</a></li>
+        <li><a href="contact.html">お問合せ</a></li>
+      </ul>
+    </nav>
+    <div class="copyright">© 2026 わたしはルル</div>
+  </div>
+</footer>
+
+</body>
+</html>

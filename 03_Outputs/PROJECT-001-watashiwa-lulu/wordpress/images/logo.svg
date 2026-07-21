@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-label="わたしはルル ロゴマーク">
+  <title>わたしはルル ロゴマーク</title>
+
+  <!-- badge backdrop -->
+  <circle cx="120" cy="120" r="116" fill="#FBF3E7" stroke="#EADFC9" stroke-width="2"/>
+
+  <!-- ears (outer / house-roof silhouette) -->
+  <path d="M60,100 L40,26 L104,90 Z" fill="#D97D55"/>
+  <path d="M180,100 L200,26 L136,90 Z" fill="#D97D55"/>
+
+  <!-- inner ears (accent) -->
+  <path d="M66,92 L52,50 L94,82 Z" fill="#8FA888"/>
+  <path d="M174,92 L188,50 L146,82 Z" fill="#8FA888"/>
+
+  <!-- head -->
+  <circle cx="120" cy="134" r="72" fill="#D97D55"/>
+
+  <!-- eyes (closed, gentle) -->
+  <path d="M90,128 Q100,138 110,128" fill="none" stroke="#4A3B33" stroke-width="6" stroke-linecap="round"/>
+  <path d="M130,128 Q140,138 150,128" fill="none" stroke="#4A3B33" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- whiskers -->
+  <path d="M95,146 L60,138" stroke="#4A3B33" stroke-width="3" stroke-linecap="round" opacity="0.55"/>
+  <path d="M95,152 L58,152" stroke="#4A3B33" stroke-width="3" stroke-linecap="round" opacity="0.55"/>
+  <path d="M95,158 L60,166" stroke="#4A3B33" stroke-width="3" stroke-linecap="round" opacity="0.55"/>
+  <path d="M145,146 L180,138" stroke="#4A3B33" stroke-width="3" stroke-linecap="round" opacity="0.55"/>
+  <path d="M145,152 L182,152" stroke="#4A3B33" stroke-width="3" stroke-linecap="round" opacity="0.55"/>
+  <path d="M145,158 L180,166" stroke="#4A3B33" stroke-width="3" stroke-linecap="round" opacity="0.55"/>
+
+  <!-- nose (heart) -->
+  <path d="M120,158 C112,150 106,144 106,138 C106,132 112,130 116,134 C118,136 119,138 120,140 C121,138 122,136 124,134 C128,130 134,132 134,138 C134,144 128,150 120,158 Z" fill="#B85C3A"/>
+
+  <!-- mouth -->
+  <path d="M110,158 Q116,168 120,160 Q124,168 130,158" fill="none" stroke="#4A3B33" stroke-width="4" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,133 @@
+<?php
+/**
+ * わたしはルル テーマ front-page.php
+ * 固定フロントページ用テンプレート（コンセプト・サービス概要・FAQ上位3件）。
+ * 「設定 > 表示設定」で固定ページをフロントページに指定すると使われる。
+ */
+get_header();
+?>
+
+<section class="hero">
+  <div class="container">
+    <p class="tagline">ネコと、あたたかい暮らしを。</p>
+    <h1>「保護猫の譲渡条件から外れてしまうけど、<br>ネコと暮らしたい」を、お手伝いします。</h1>
+    <p class="lead">
+      年齢や一人暮らし、健康状態を理由に、猫を迎えることを諦めていませんか。<br>
+      「わたしはルル」は、訪問サポートを通して、保護された成猫（おとなの猫）と、その方の暮らしを結ぶサービスです。<br>
+      人も猫も、最後まで安心して、あたたかい毎日を過ごせるように。
+    </p>
+    <a class="btn" href="<?php echo esc_url( home_url( '/contact/' ) ); ?>">まずは相談してみる</a>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-title">
+      <span class="en">CONCEPT</span>
+      <h2>「わたしはルル」の想い</h2>
+    </div>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>諦めなくていい理由</h3>
+        <p>
+          年齢（多くは65歳以上）や一人暮らし、健康状態（加齢や障害等で行動範囲が狭いこと）を理由に、猫を飼うことを諦める方が多くいます。責任感が強い方ほど「もう絶対に飼えない」と思い込んでしまいます。<br>
+          でも、サポートがあったらどうでしょうか？
+        </p>
+      </div>
+      <div class="card">
+        <h3>私たちの願い</h3>
+        <p>
+          人も猫も、等しく幸せな日々を送ってほしい。お互いが最後の瞬間まで、あたたかいお家で、信頼できる人（ご主人様）と暮らしてほしい。<br>
+          それが「わたしはルル」の願いです。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-title">
+      <span class="en">MERIT</span>
+      <h2>猫と暮らすということ</h2>
+    </div>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>猫を飼うメリット</h3>
+        <p>セラピー効果、孤独感の軽減、うつ気分の解消など、猫との暮らしは心にたくさんの穏やかさをもたらします。</p>
+      </div>
+      <div class="card">
+        <h3>正直な話、大変なことも</h3>
+        <p>猫も生き物なので、保護する責任が伴います。人の子供と同じように、予防接種や避妊処置、日々の細かな悩みが増えることもあります。そして、いつか訪れる死に際は、とても辛いものです。<br>
+        「わたしはルル」は、この大変さも一緒に抱えるためのサービスです。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-title">
+      <span class="en">SERVICE</span>
+      <h2>サービス内容</h2>
+    </div>
+    <div class="grid grid-3">
+      <div class="card">
+        <h3>猫飼育サポート訪問</h3>
+        <p>爪切り・シャンプー・トイレ洗浄などの身の回りの世話、お悩み相談、生活環境の改善提案、通院の補助まで、暮らしに寄り添います。</p>
+      </div>
+      <div class="card">
+        <h3>ご不在時のお預かり</h3>
+        <p>入院・出張・旅行等でご不在のときは、愛猫のお預かりや、猫ホテル・預かり所のご紹介も行います。</p>
+      </div>
+      <div class="card">
+        <h3>猫とのコミュニケーション</h3>
+        <p>里親探しイベントや猫グッズ販売会、動物愛護センター訪問など、猫を通じたつながりづくりも応援します。</p>
+      </div>
+    </div>
+    <p style="text-align:center;margin-top:28px;">
+      <a class="btn btn-outline" href="<?php echo esc_url( home_url( '/service/' ) ); ?>">料金・サービスの流れを見る</a>
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="section-title">
+      <span class="en">FAQ</span>
+      <h2>よくある質問（上位3つ）</h2>
+    </div>
+
+    <details class="faq-item" open>
+      <summary><span class="q-label">Q.</span>「わたしはルル」はどんなサービス？</summary>
+      <div class="a">主に65歳以上や一人暮らしの方で猫と暮らしたい方を、飼い主のいない大人の猫（成猫）さんに引き合わせ、一緒にお世話していくサービスです。</div>
+    </details>
+
+    <details class="faq-item">
+      <summary><span class="q-label">Q.</span>なぜ65歳以上の方や一人暮らしの方だけなの？</summary>
+      <div class="a">・おとなの猫さんは、里親が見つかりづらいためです。
+・おとなの猫さんは動きもゆっくりなので、穏やかに過ごせます。
+・子猫さんは動きがすばしっこく体調も崩しやすいので、飼うのが大変です（好奇心旺盛のため脱走しやすい）。
+・子猫の時にしか使わないおもちゃ等を買わなくてよい、というメリットもあります。</div>
+    </details>
+
+    <details class="faq-item">
+      <summary><span class="q-label">Q.</span>子猫から迎えないと、なれてくれないのでは？</summary>
+      <div class="a">そんなことはありません。たくさんの愛情を持って接すれば、どんな子とも仲良くなれます（ベタベタに甘えるだけが愛情ではありません）。</div>
+    </details>
+
+    <p style="text-align:center;margin-top:20px;">
+      <a href="<?php echo esc_url( home_url( '/faq/' ) ); ?>">よくある質問をもっと見る ＞</a>
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container" style="text-align:center;">
+    <h2>まずは、お気軽にご相談ください</h2>
+    <p class="lead">お電話・メールでのお申し込みから、面談、ネコとの縁むすびへと進みます。</p>
+    <a class="btn" href="<?php echo esc_url( home_url( '/contact/' ) ); ?>">お問合せフォームへ</a>
+  </div>
+</section>
+
+<?php get_footer(); ?>
