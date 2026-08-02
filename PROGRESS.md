@@ -3,9 +3,9 @@
 > **このファイルの役割**：全体のどこまで出来ているかを1か所で把握し、**セッションを跨いでも続きから再開できる**ようにする進捗の正本。
 > 作業を一段落させるたびにここを更新する。詳細な設計は `SPEC.md`、不変条件は `CLAUDE.md`、方針変更は `08_Decisions/`（ADR）を正とする。
 
-- 最終更新: 2026-07-21
-- 現在地: **P1-V（最初のタスクでの動作確認）完了。PROJECT-001「わたしはルル」Webサイト制作（TASK-2026-0001）で Doer→Checker のループを実行し、status: approval まで到達。次は人間による最終承認（approval→done）待ち。**
-- 直近の人間アクション：`02_Tasks/TASK-2026-0001-watashiwa-lulu-web.md` と `03_Outputs/PROJECT-001-watashiwa-lulu/` の成果物を確認し、問題なければ status を `approval` → `done` に変更する。
+- 最終更新: 2026-08-03
+- 現在地: **P1-V完了（PROJECT-001、approval待ち・変更なし）に加え、新規 PROJECT-002「AI LOOPエンジン開発」に着手（TASK-2026-0002、status: doing）。要件定義書（`00_Inbox/00_attachment_files/20260803/AI_LOOP_要件定義書_v1−1.docx`）に基づき、Webサイト向けAI LOOP（デザイン生成→実装→検証→修正）を実働するソフトウェアとして `ai-loop-engine/` に構築中。詳細は [[ADR-0007-ai-loop-engine-build]]。**
+- 直近の人間アクション：①`02_Tasks/TASK-2026-0001-watashiwa-lulu-web.md` と `03_Outputs/PROJECT-001-watashiwa-lulu/` を確認し、問題なければ status を `approval` → `done` に変更する。②TASK-2026-0002の完了報告（Checker検査後）を確認し、`approval` → `done` の要否を判断する。
 
 ---
 
@@ -86,6 +86,26 @@
 
 ---
 
+### PROJECT-002：AI LOOPエンジン開発（要件定義書v1.1準拠） — 🔄 実装中
+
+> Vault自身の運用管理（P1〜P4のフェーズゲート）とは別の切り分け。詳細は [[ADR-0007-ai-loop-engine-build]]。対象は要件定義書のPhase1（Webサイト向けコアループ）のみ。ロゴ／イラスト／バナー／CMSライブ投入等はレジストリ（拡張点）のみ用意し、中身は実測後に着手する。
+
+| ID | 成果物 | 状態 | メモ |
+|----|--------|------|------|
+| E-1 | ガバナンス文書（ADR-0007／PROJECT-002／TASK-2026-0002） | ✅ | |
+| E-2 | `ai-loop-engine/` スキャフォールド（package.json/tsconfig/config/README） | 🔄 | |
+| E-3 | core/types + ファイルベースJSONストア（版管理） | ⬜ | |
+| E-4 | templates registry + website テンプレート + ロゴ/イラスト/バナー登録スタブ | ⬜ | |
+| E-5 | materials ledger（支給素材台帳・固定フラグ・過不足判定） | ⬜ | |
+| E-6 | generation engines（design/impl・manualHandoff/claudeApi） | ⬜ | |
+| E-7 | verification engine（lint/a11y/responsive/visualDiff/materialsUnchanged/report） | ⬜ | |
+| E-8 | orchestrator（収束判定・人間チェックポイント） | ⬜ | |
+| E-9 | output/CMSアダプタ（staticExport／wordpress）+ レジストリ | ⬜ | |
+| E-10 | CLI | ⬜ | |
+| E-11 | サンプル案件での一気通貫動作確認＋ユニットテスト | ⬜ | |
+
+---
+
 ## 再開のしかた（次セッションの起点）
 
 1. このファイル冒頭の「現在地」を読む。
@@ -102,3 +122,4 @@
 | （配布日） | テンプレートとして配布。フェーズ1のスキャフォールドのみ、実タスク・実行ログは含まない。 |
 | 2026-07-21 | P1-V実施。PROJECT-001／TASK-2026-0001「わたしはルル」Webサイト制作（ロゴ／WPテンプレート／HTML）でDoer→Checkerループを実行、status: approval。 |
 | 2026-07-21 | TASK-2026-0001に改修依頼（レスポンシブ・ハンバーガーメニュー）。status: doing→Checker再検証→approval。差し戻し発生時のDoer→Checkerループも動作確認できた。 |
+| 2026-08-03 | AI_LOOP要件定義書v1.1を受け、PROJECT-002/TASK-2026-0002を起票。ADR-0007でVault運用ゲートとの切り分けを明記し、`ai-loop-engine/`の本格開発に着手。 |
