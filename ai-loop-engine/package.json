@@ -1,0 +1,37 @@
+{
+  "name": "ai-loop-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI LOOP：デザイン生成→実装生成→検証→修正の反復ループ（Phase1: Webサイト向けコア実装）",
+  "type": "module",
+  "bin": {
+    "ai-loop": "./src/cli/index.ts"
+  },
+  "scripts": {
+    "ai-loop": "tsx src/cli/index.ts",
+    "test": "node --import tsx --test tests/**/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.10.1",
+    "archiver": "^7.0.1",
+    "eslint": "^9.13.0",
+    "htmlhint": "^1.1.4",
+    "pixelmatch": "^6.0.0",
+    "playwright": "^1.48.0",
+    "pngjs": "^7.0.0",
+    "stylelint": "^16.9.0",
+    "stylelint-config-standard": "^36.0.1"
+  },
+  "devDependencies": {
+    "@types/archiver": "^6.0.2",
+    "@types/node": "^22.7.5",
+    "@types/pixelmatch": "^5.2.6",
+    "@types/pngjs": "^6.0.5",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
+  }
+}

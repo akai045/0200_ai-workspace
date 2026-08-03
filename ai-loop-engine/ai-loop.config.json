@@ -1,0 +1,13 @@
+{
+  "$comment": "AI LOOP設定。要件定義書 6.3（収束条件の定義例）・NF-203（AIモデル/API差し替え可能）に対応。設定変更のみでエンジン差し替え・閾値調整ができる。",
+  "generationEngine": "manualHandoff",
+  "convergence": {
+    "visualDiffMinScore": 0.95,
+    "maxLintErrors": 0,
+    "maxLintWarnings": 5,
+    "accessibilityLevel": "AA",
+    "maxIterations": 5
+  },
+  "breakpoints": [375, 768, 1280],
+  "designCandidateCount": 3
+}
