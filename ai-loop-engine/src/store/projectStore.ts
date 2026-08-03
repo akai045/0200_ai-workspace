@@ -38,6 +38,7 @@ import {
   verificationResultsDir,
 } from "./paths.js";
 import { readdir, copyFile } from "node:fs/promises";
+import { readImageDimensions } from "../materials/integrity.js";
 
 export interface CreateProjectInput {
   id: string;
@@ -123,6 +124,7 @@ export async function addMaterial(input: AddMaterialInput): Promise<MaterialAsse
   const destPath = join(destDir, `original${ext}`);
   await copyFile(input.sourceFilePath, destPath);
   const hash = await sha256File(destPath);
+  const dimensions = await readImageDimensions(destPath);
 
   const asset: MaterialAsset = {
     id,
@@ -131,6 +133,7 @@ export async function addMaterial(input: AddMaterialInput): Promise<MaterialAsse
     usageTag: input.usageTag,
     fixed: input.fixed,
     originalHash: hash,
+    dimensions,
     altText: input.altText,
     registeredAt: new Date().toISOString(),
     supersedes: input.supersedes,
