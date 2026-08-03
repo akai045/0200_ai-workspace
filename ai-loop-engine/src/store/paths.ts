@@ -62,3 +62,23 @@ export function runsLogPath(projectId: string): string {
 export function exportsDir(projectId: string): string {
   return join(projectDir(projectId), "exports");
 }
+
+export function handoffDir(projectId: string): string {
+  return join(projectDir(projectId), "handoff");
+}
+
+export function handoffDesignRequestPath(projectId: string, version: number): string {
+  return join(handoffDir(projectId), `design-request-v${version}.json`);
+}
+
+export function handoffDesignResponsePath(projectId: string, version: number): string {
+  return join(handoffDir(projectId), `design-response-v${version}.json`);
+}
+
+export function handoffImplementationRequestPath(projectId: string, version: number): string {
+  return join(handoffDir(projectId), `impl-request-v${version}.json`);
+}
+
+export function handoffImplementationResponsePath(projectId: string, version: number): string {
+  return join(handoffDir(projectId), `impl-response-v${version}.json`);
+}
