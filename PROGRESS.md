@@ -4,8 +4,8 @@
 > 作業を一段落させるたびにここを更新する。詳細な設計は `SPEC.md`、不変条件は `CLAUDE.md`、方針変更は `08_Decisions/`（ADR）を正とする。
 
 - 最終更新: 2026-08-03
-- 現在地: **P1-V完了（PROJECT-001、approval待ち・変更なし）に加え、PROJECT-002「AI LOOPエンジン開発」はTASK-2026-0002（Phase1・Webサイト）・TASK-2026-0003（Phase2・ロゴ／バナー／チラシ）が人間確認OKでstatus: done。続けてTASK-2026-0004（イラスト）を実装完了（E-17）。これで要件定義書のデザインカテゴリ（Web/ロゴ/イラスト/バナー）は全て実働する状態。詳細は [[ADR-0007-ai-loop-engine-build]]。既知の未実装範囲（CMSライブ投入・EPS/Lottie/HTML5バナー等の拡張出力形式・出力形式プラグイン・コスト計測等）はREADME.mdの対応表参照。**
-- 直近の人間アクション：①`02_Tasks/TASK-2026-0001-watashiwa-lulu-web.md` と `03_Outputs/PROJECT-001-watashiwa-lulu/` を確認し、問題なければ status を `approval` → `done` に変更する。②TASK-2026-0004をCheckerで検査してもらい（受入条件との3値判定）、通れば人間が完了確認する。
+- 現在地: **P1-V完了（PROJECT-001、approval待ち・変更なし）に加え、PROJECT-002「AI LOOPエンジン開発」はTASK-2026-0002（Phase1・Webサイト）・TASK-2026-0003（Phase2・ロゴ／バナー／チラシ）・TASK-2026-0004（イラスト）が人間確認OKでstatus: done。続けてTASK-2026-0005（非WordPress CMSアダプタ・コスト計測・EPS出力）を実装完了（E-18〜E-20）。詳細は [[ADR-0007-ai-loop-engine-build]]。残る未実装（ライブCMS投入・Lottie/HTML5バナーアニメーション・Figma/Sketchプラグイン）はいずれも外部送信/認証情報またはアニメーション用データモデル拡張が必要でTASK-2026-0005では対象外とし、商標・著作権類似度チェックは4.2との矛盾を理由に意図的に未実装とした。詳細はREADME.mdの対応表参照。**
+- 直近の人間アクション：①`02_Tasks/TASK-2026-0001-watashiwa-lulu-web.md` と `03_Outputs/PROJECT-001-watashiwa-lulu/` を確認し、問題なければ status を `approval` → `done` に変更する。②TASK-2026-0005をCheckerで検査してもらい（受入条件との3値判定）、通れば人間が完了確認する。③ライブCMS投入（F-304）に進むかどうかは、実投入先・認証情報の受け渡し方法について人間の判断が必要（T2）。
 
 ---
 
@@ -88,7 +88,7 @@
 
 ### PROJECT-002：AI LOOPエンジン開発（要件定義書v1.1準拠） — 🔄 実装中
 
-> Vault自身の運用管理（P1〜P4のフェーズゲート）とは別の切り分け。詳細は [[ADR-0007-ai-loop-engine-build]]。Phase1（Webサイト向けコアループ）はTASK-2026-0002、Phase2（ロゴ／バナー／チラシ向けコアループ）はTASK-2026-0003、イラストはTASK-2026-0004で実装した。要件定義書のデザインカテゴリ（Web/ロゴ/イラスト/バナー）は全て実働する。CMSライブ投入・拡張出力形式（EPS/Lottie/HTML5バナー等）は引き続きレジストリ（拡張点）のみ／未実装。
+> Vault自身の運用管理（P1〜P4のフェーズゲート）とは別の切り分け。詳細は [[ADR-0007-ai-loop-engine-build]]。Phase1（Webサイト向けコアループ）はTASK-2026-0002、Phase2（ロゴ／バナー／チラシ向けコアループ）はTASK-2026-0003、イラストはTASK-2026-0004、拡張機能（非WordPress CMSアダプタ・コスト計測・EPS出力）はTASK-2026-0005で実装した。要件定義書のデザインカテゴリ（Web/ロゴ/イラスト/バナー）は全て実働する。ライブCMS投入・Lottie/HTML5バナーアニメーション・Figma/Sketchプラグインは外部送信/認証情報またはアニメーション用データモデル拡張が必要なため未実装、商標・著作権類似度チェックは4.2との矛盾を理由に意図的に未実装。
 
 | ID | 成果物 | 状態 | メモ |
 |----|--------|------|------|
@@ -109,6 +109,9 @@
 | E-15 | logo/banner/flyerテンプレート実装＋wordpressアダプタのカテゴリガード | ✅ | チラシは要件定義書に無いカテゴリをF-602パターンで新設（デジタル用途限定・4.2の対象外事項を明記） |
 | E-16 | サンプル案件（logoカテゴリ）での一気通貫動作確認＋ユニットテスト＋Webサイト回帰確認 | ✅ | SVG構造不備（viewBox欠落）→不適合→修正→適合の反復を実機確認。node --test 31件通過（新規14件）。Webサイトカテゴリの回帰無しを別案件で確認。TASK-2026-0003はここで人間確認OK・status: done |
 | E-17 | illustrationテンプレート実装（TASK-2026-0004） | ✅ | TASK-2026-0003の共通基盤（GraphicDesignSpec/graphicPostProcess/検証チェック）をテンプレート追加のみで流用（F-601/602）。サンプル案件でブランド整合性不適合（オフブランド配色）→修正→適合の反復を実機確認。Lottieは拡張出力形式のため未実装 |
+| E-18 | 非WordPress CMSアダプタ（microcms/shopify/movable-type）実装（TASK-2026-0005） | ✅ | それぞれ実在する公開データ形式（microCMSコンテンツ管理API・Shopify Admin API Page資源・MT Import形式）でローカル書き出しのみ。ライブAPI呼び出し・認証情報は扱わない |
+| E-19 | コスト計測・上限アラート（NF-403）実装 | ✅ | claudeApiエンジンの実usageからコスト計算・累積・`cost:report`コマンド。manualHandoffは常に0（実際に課金が発生しないため） |
+| E-20 | EPS出力アダプタ実装（logo/banner/flyer/illustration） | ✅ | rect/circle/path・単色fillのみの単純なSVGを実際のPostScriptへ変換。gradient/transform等はスキップし理由を明記。ユニットテストで数値変換（Y反転・BoundingBox）を検証。TASK-2026-0005はここで人間確認待ち |
 
 ---
 

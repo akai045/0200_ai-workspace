@@ -15,11 +15,19 @@ export interface ConvergenceConfig {
   brandColorMinCompliantFraction: number;
 }
 
+/** NF-403: コスト計測・上限アラート。claudeApiエンジン使用時のみ実コストが発生する（manualHandoffは常に0）。 */
+export interface CostTrackingConfig {
+  pricePerMillionInputTokensUsd: number;
+  pricePerMillionOutputTokensUsd: number;
+  maxCostUsdPerProject: number;
+}
+
 export interface AiLoopConfig {
   generationEngine: string;
   convergence: ConvergenceConfig;
   breakpoints: number[];
   designCandidateCount: number;
+  costTracking: CostTrackingConfig;
 }
 
 let cached: AiLoopConfig | undefined;

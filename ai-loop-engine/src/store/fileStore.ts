@@ -63,6 +63,16 @@ export async function appendJsonl(filePath: string, record: unknown): Promise<vo
   await appendFile(filePath, JSON.stringify(record) + "\n", "utf-8");
 }
 
+export async function readJsonl<T>(filePath: string): Promise<T[]> {
+  if (!(await fileExists(filePath))) return [];
+  const raw = await readFile(filePath, "utf-8");
+  return raw
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .map((line) => JSON.parse(line) as T);
+}
+
 export async function sha256File(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const hash = createHash("sha256");

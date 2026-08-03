@@ -8,10 +8,17 @@ import type { ImplementationEngine, ImplementationGenerationRequest } from "../i
 import type { DesignSpec, GraphicDesignSpec } from "../../core/types.js";
 import { artboardIdFor, resolveOutputSizes } from "../../templates/outputSizes.js";
 import { postProcessGraphicArtifacts } from "../graphicPostProcess.js";
+import { loadConfig } from "../../core/config.js";
+import { checkBudget, recordGenerationCost } from "../../cost/tracker.js";
 
 const DEFAULT_MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-5";
 
-async function callClaude(prompt: string, maxTokens = 8000): Promise<string> {
+interface ClaudeResponse {
+  text: string;
+  usage: { inputTokens: number; outputTokens: number };
+}
+
+async function callClaude(prompt: string, maxTokens = 8000): Promise<ClaudeResponse> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     throw new Error(
@@ -34,10 +41,25 @@ async function callClaude(prompt: string, maxTokens = 8000): Promise<string> {
   if (!response.ok) {
     throw new Error(`Anthropic API error ${response.status}: ${await response.text()}`);
   }
-  const data = (await response.json()) as { content: { type: string; text?: string }[] };
+  const data = (await response.json()) as {
+    content: { type: string; text?: string }[];
+    usage: { input_tokens: number; output_tokens: number };
+  };
   const text = data.content.find((block) => block.type === "text")?.text;
   if (!text) throw new Error("Anthropic APIの応答にtextブロックがありませんでした");
-  return text;
+  return { text, usage: { inputTokens: data.usage.input_tokens, outputTokens: data.usage.output_tokens } };
+}
+
+/** NF-403: 実usageからコストを記録し、上限超過時のみ警告する（強制停止はしない＝アラート要件）。 */
+async function trackCost(projectId: string, usage: ClaudeResponse["usage"]): Promise<void> {
+  const config = await loadConfig();
+  await recordGenerationCost(projectId, "claudeApi", usage, config.costTracking);
+  const budget = await checkBudget(projectId, config.costTracking);
+  if (budget.overBudget) {
+    console.warn(
+      `[ai-loop][cost-alert] プロジェクト"${projectId}"の累積コスト見積り $${budget.totalCostUsd.toFixed(4)} が上限 $${budget.maxCostUsd} を超えました（NF-403）。`,
+    );
+  }
 }
 
 function extractJson<T>(text: string): T {
@@ -60,7 +82,8 @@ export const claudeApiDesignEngine: DesignEngine = {
       : `以下の要件でWebサイトのデザイン案を${request.candidateCount}件、JSONのみで出力してください（説明文は不要）。\n` +
         '出力形式: {"designs": [{"kind": "website", "pages": [...], "colorPalette": [...], "typography": {...}, "usedMaterialIds": [...]}]}\n' +
         `要件: ${JSON.stringify({ brief: request.project.brief, materials: request.materials, materialGaps: request.materialGaps })}`;
-    const text = await callClaude(prompt);
+    const { text, usage } = await callClaude(prompt);
+    await trackCost(request.project.id, usage);
     const parsed = extractJson<{ designs: DesignSpec[] }>(text);
     return parsed.designs;
   },
@@ -80,7 +103,8 @@ export const claudeApiImplementationEngine: ImplementationEngine = {
         '出力形式: {"files": [{"path": "index.html", "content": "..."}]}\n' +
         `デザイン仕様: ${JSON.stringify(request.selectedDesign)}\n` +
         `固定素材（そのまま参照するのみ、改変禁止）: ${JSON.stringify(request.materials.filter((m) => m.fixed))}`;
-    const text = await callClaude(prompt);
+    const { text, usage } = await callClaude(prompt);
+    await trackCost(request.project.id, usage);
     const parsed = extractJson<{ files: { path: string; content: string }[] }>(text);
     const { mkdir, writeFile } = await import("node:fs/promises");
     const { dirname, join } = await import("node:path");

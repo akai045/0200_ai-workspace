@@ -11,5 +11,11 @@
     "brandColorMinCompliantFraction": 0.5
   },
   "breakpoints": [375, 768, 1280],
-  "designCandidateCount": 3
+  "designCandidateCount": 3,
+  "costTracking": {
+    "$comment": "NF-403。Anthropicの公開料金表（モデルごとに異なる）に合わせてpricePerMillion*を更新してください。ここでは目安値。manualHandoffエンジンは常にコスト0（Anthropic API課金が発生しないため）。",
+    "pricePerMillionInputTokensUsd": 3,
+    "pricePerMillionOutputTokensUsd": 15,
+    "maxCostUsdPerProject": 5
+  }
 }

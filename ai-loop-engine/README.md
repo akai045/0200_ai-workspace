@@ -2,7 +2,7 @@
 
 要件定義書（`00_Inbox/00_attachment_files/20260803/AI_LOOP_要件定義書_v1−1.docx`）に基づく、AI LOOP（デザイン生成→実装生成→検証→修正の反復ループ）の実装。Phase1（Webサイト向けコア）・Phase2（ロゴ・バナー・チラシ〔デジタル版〕・イラスト向けコアループ）とも実装済み。要件定義書のデザインカテゴリ（Web/ロゴ/イラスト/バナー）は全て実働する状態。
 
-意思決定の背景は [`../08_Decisions/ADR-0007-ai-loop-engine-build.md`](../08_Decisions/ADR-0007-ai-loop-engine-build.md)、開発タスクは [`../02_Tasks/TASK-2026-0002-ai-loop-engine-phase1.md`](../02_Tasks/TASK-2026-0002-ai-loop-engine-phase1.md)（Phase1）・[`../02_Tasks/TASK-2026-0003-ai-loop-engine-phase2-graphics.md`](../02_Tasks/TASK-2026-0003-ai-loop-engine-phase2-graphics.md)（Phase2：ロゴ/バナー/チラシ）・[`../02_Tasks/TASK-2026-0004-ai-loop-engine-illustration.md`](../02_Tasks/TASK-2026-0004-ai-loop-engine-illustration.md)（Phase2追加：イラスト）を参照。
+意思決定の背景は [`../08_Decisions/ADR-0007-ai-loop-engine-build.md`](../08_Decisions/ADR-0007-ai-loop-engine-build.md)、開発タスクは [`../02_Tasks/TASK-2026-0002-ai-loop-engine-phase1.md`](../02_Tasks/TASK-2026-0002-ai-loop-engine-phase1.md)（Phase1）・[`../02_Tasks/TASK-2026-0003-ai-loop-engine-phase2-graphics.md`](../02_Tasks/TASK-2026-0003-ai-loop-engine-phase2-graphics.md)（Phase2：ロゴ/バナー/チラシ）・[`../02_Tasks/TASK-2026-0004-ai-loop-engine-illustration.md`](../02_Tasks/TASK-2026-0004-ai-loop-engine-illustration.md)（Phase2追加：イラスト）・[`../02_Tasks/TASK-2026-0005-ai-loop-engine-extensions.md`](../02_Tasks/TASK-2026-0005-ai-loop-engine-extensions.md)（拡張：非WordPress CMSアダプタ・コスト計測・EPS出力）を参照。
 
 このディレクトリはVault本体（`00_Inbox`〜`10_Runs`）とは別の、**成果物としてのソフトウェア**。Vault自身の運用管理（タスクのstatus管理等）には影響しない。
 
@@ -24,8 +24,9 @@ npm run ai-loop -- design:select --project <project-id> --version <n> --candidat
 npm run ai-loop -- impl:generate --project <project-id>
 npm run ai-loop -- verify --project <project-id>
 npm run ai-loop -- report --project <project-id> [--version <n>]
-npm run ai-loop -- export --project <project-id> --adapter static-html   # または wordpress
+npm run ai-loop -- export --project <project-id> --adapter static-html   # または wordpress/microcms/shopify/movable-type/eps
 npm run ai-loop -- approve --project <project-id>
+npm run ai-loop -- cost:report --project <project-id>
 ```
 
 既定の生成エンジン（`manualHandoff`）は、`design:generate`／`impl:generate`実行時に応答待ち（`ManualHandoffPendingError`）となり、`projects/<id>/handoff/`配下に指示付きのリクエストJSONを書き出す。Claude Code操作者がresponseSchema通りの応答JSONを同じディレクトリへ書いてから同じコマンドを再実行する、という運用を想定している（PROJECT-001での実績と同じ生成エンジンとしての役割）。
@@ -48,14 +49,17 @@ npm run ai-loop -- approve --project <project-id>
 | `src/templates/flyer/` | 5.6/F-602（新規カテゴリ、要件定義書には無いカテゴリをテンプレート追加のみで拡張） | 実装（デジタル閲覧・データ入稿用途に限定。4.2により紙媒体の物理的な色校正・入稿品質保証は対象外） |
 | `src/templates/illustration/` | F-104, 5.6 | 実装（アイキャッチ・キャラクター・アイコンセット。SVGベクター＋PNG。Lottie〔アニメーション〕は拡張出力形式として未実装） |
 | `src/adapters/output/staticHtml.ts` | F-701, F-704 | 実装（archiverによるzip書き出し。全カテゴリ共通） |
+| `src/adapters/output/epsExport.ts` | F-206拡張 | 実装（logo/banner/flyer/illustrationのSVGのうちrect/circle/path・単色fillのみの単純な構成をEPSへ変換。gradient/transform/曲線コマンドQ・S・T・A等はスキップし理由を明記） |
 | `src/adapters/cms/wordpress/` | F-301, F-302 | 実装（Webサイトカテゴリ専用。`<header>/<main>/<footer>`規約前提のテーマファイル変換。詳細は下記「設計上の制約」参照） |
-| `src/adapters/cms/*`（WordPress以外） | F-305 | **登録スタブのみ**（microCMS/Shopify/Movable Type） |
-| ロゴのEPS・バナーのHTML5アニメーション・イラストのLottie（各拡張出力形式） | F-206/207・7.2 | 未実装（いずれもCould優先度・拡張出力形式。標準出力〔SVG/PNG〕のみ対応） |
-| 出力形式プラグイン機構（Figma/Sketch等） | F-603 | 未実装（Could優先度） |
-| ライブCMS投入 | F-304 | 未実装（Could優先度・資格情報が無いため） |
+| `src/adapters/cms/microcms/` | F-305 | 実装（microCMSコンテンツ管理APIのリクエストボディ相当のJSONを書き出し。ライブAPI呼び出しはしない） |
+| `src/adapters/cms/shopify/` | F-305 | 実装（Shopify Admin APIのPage資源JSON相当を書き出し。ライブAPI呼び出しはしない） |
+| `src/adapters/cms/movableType/` | F-305 | 実装（Movable Type Import形式のプレーンテキストを書き出し。ライブ投入はしない） |
+| コスト計測・上限アラート | NF-403 | 実装（`src/cost/tracker.ts`。claudeApiエンジンのAnthropic API実usageからコストを計算・累積・`cost:report`で確認可能。manualHandoffエンジンはAPI課金が発生しないため常に0） |
+| ロゴのHTML5アニメーション・イラストのLottie（アニメーション系拡張出力） | F-207・7.2 | 未実装。`GraphicDesignSpec`に時間軸・キーフレームの概念が無く、アニメーション対応のデータモデル拡張が必要（今回のスコープ外・TASK-2026-0005） |
+| 出力形式プラグイン機構（Figma/Sketch等） | F-603 | 未実装。実際のFigma API呼び出しには外部送信・OAuth認証情報が必要（T2判断が必要）、Sketchは実バイナリ形式対応が必要なため見送り |
+| ライブCMS投入 | F-304 | 未実装（外部送信・本番反映を伴うT2領域。実投入先・認証情報の受け渡し方法について人間の判断が必要） |
 | 認証情報暗号化保管 | NF-302 | 未実装（ライブ投入自体が未実装のため） |
-| コスト計測・上限アラート | NF-403 | 未実装（Phase5相当） |
-| 商標・著作権類似度チェック | NF-303 | 未実装（Could優先度） |
+| 商標・著作権類似度チェック | NF-303 | **意図的に未実装**。要件定義書4.2が「著作権・商標の法的審査は利用者側の責任範囲」と明示的に対象外としており矛盾するため、真の法的審査の代替になり得ない簡易チェックで誤った安心感を与えないことを優先した（TASK-2026-0005対立的推論参照） |
 
 ## 設計上の制約
 
@@ -67,3 +71,6 @@ npm run ai-loop -- approve --project <project-id>
 - **ロゴ/バナー/チラシ（GraphicDesignSpec）の生成分担**：AI/操作者が書くのは`artboards/<id>.svg`（ベクター意匠そのもの）のみ。PNGラスタライズ（複数解像度・複数サイズ）・プレビューHTML・`artboards-manifest.json`はシステムが機械的に生成する（`src/generation/graphicPostProcess.ts`）。これにより「AIが指示に従ったと自己申告するだけ」にならず、`multi-size-output`（image-sizeで実寸法を計測）・`brand-consistency`（pngjsで実ピクセルをサンプリング）が実測ベースで検証できる。
 - **サイズ要求の一元管理**：`brief.outputSizes`（未指定時は`src/templates/outputSizes.ts`のカテゴリ既定値）を、デザイン生成（アートボード数の決定）と検証（`multi-size-output`）の両方が同じ関数から取得する。生成側と検証側が別々に「要求サイズ」を解釈することによる食い違いを防ぐ。
 - **チラシは要件定義書に無いカテゴリ**：F-602（新規カテゴリのテンプレート追加のみでの拡張）のパターンに従い新設（TASK-2026-0003で人間確認済み）。出力はデジタル閲覧・データ入稿用途のPNG/SVGに限定し、4.2（対象外範囲）の「印刷物（紙媒体）向けの色校正・入稿データの物理的品質保証」は行わない。
+- **非WordPress CMSアダプタ（microcms/shopify/movable-type）はいずれもライブAPI呼び出しを行わない**：それぞれの実在する公開データ形式（microCMSのコンテンツ管理API・ShopifyのAdmin API Page資源・Movable TypeのImport形式）に沿ったファイルをローカルへ書き出すのみで、認証情報も一切扱わない。実際のCMSへの投入（F-304）は別途、投入先・認証情報の受け渡し方法について人間の判断を要する。
+- **EPS出力の対応範囲は意図的に狭い**：rect/circle/pathの単純な図形・単色fillのみに対応し、gradient・transform・パスの曲線コマンド（Q/S/T/A等）・相対座標コマンドは非対応として変換をスキップし、`CONVERSION_NOTES.md`に理由を明記する（変換できないものを「できた」と偽らない）。
+- **コスト計測（NF-403）は実usageのみを計上する**：claudeApiエンジン利用時のみ、Anthropic APIレスポンスの`usage.input_tokens`/`usage.output_tokens`を実際に読み取ってコストを計算・累積する。manualHandoffエンジン（Claude Code操作者へのハンドオフ）はAnthropic API課金を伴わないため記録自体を行わず、発生していない費用を水増ししない。`ai-loop.config.json`の`costTracking`で単価・上限を設定変更のみで差し替えられる。

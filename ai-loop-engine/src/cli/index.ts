@@ -15,6 +15,8 @@ import { getTemplate } from "../templates/registry.js";
 import { registerAllAdapters } from "../adapters/index.js";
 import { registerMaterial } from "../materials/ledger.js";
 import { ManualHandoffPendingError } from "../generation/index.js";
+import { loadConfig } from "../core/config.js";
+import { checkBudget } from "../cost/tracker.js";
 import {
   generateDesignVersions,
   selectDesign,
@@ -161,6 +163,15 @@ async function cmdApprove(flags: Flags): Promise<void> {
   console.log(`プロジェクト"${projectId}"を最終承認しました（status: approved）。`);
 }
 
+async function cmdCostReport(flags: Flags): Promise<void> {
+  const projectId = requireFlag(flags, "project");
+  const config = await loadConfig();
+  const budget = await checkBudget(projectId, config.costTracking);
+  console.log(`プロジェクト"${projectId}"の累積コスト見積り: $${budget.totalCostUsd.toFixed(4)} / 上限 $${budget.maxCostUsd}`);
+  console.log(budget.overBudget ? "上限超過（NF-403アラート）" : "上限内");
+  process.exitCode = budget.overBudget ? 1 : 0;
+}
+
 const COMMANDS: Record<string, (flags: Flags) => Promise<void>> = {
   "project:init": cmdProjectInit,
   "material:add": cmdMaterialAdd,
@@ -171,6 +182,7 @@ const COMMANDS: Record<string, (flags: Flags) => Promise<void>> = {
   report: cmdReport,
   export: cmdExport,
   approve: cmdApprove,
+  "cost:report": cmdCostReport,
 };
 
 async function main(): Promise<void> {
