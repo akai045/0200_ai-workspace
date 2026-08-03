@@ -4,8 +4,8 @@
 > 作業を一段落させるたびにここを更新する。詳細な設計は `SPEC.md`、不変条件は `CLAUDE.md`、方針変更は `08_Decisions/`（ADR）を正とする。
 
 - 最終更新: 2026-08-03
-- 現在地: **P1-V完了（PROJECT-001、approval待ち・変更なし）に加え、PROJECT-002「AI LOOPエンジン開発」はTASK-2026-0002（Phase1・Webサイト向けコアループ）・TASK-2026-0003（Phase2・ロゴ／バナー／チラシ向けコアループ）とも人間確認OKでstatus: done。詳細は [[ADR-0007-ai-loop-engine-build]]。既知の未実装範囲（イラスト中身・CMSライブ投入・EPS/Lottie/HTML5バナー等の拡張出力形式・コスト計測等）はREADME.mdの対応表参照。**
-- 直近の人間アクション：`02_Tasks/TASK-2026-0001-watashiwa-lulu-web.md` と `03_Outputs/PROJECT-001-watashiwa-lulu/` を確認し、問題なければ status を `approval` → `done` に変更する。ai-loop-engineの次の着手範囲（イラスト実装／CMSライブ投入等）は人間の指示待ち。
+- 現在地: **P1-V完了（PROJECT-001、approval待ち・変更なし）に加え、PROJECT-002「AI LOOPエンジン開発」はTASK-2026-0002（Phase1・Webサイト）・TASK-2026-0003（Phase2・ロゴ／バナー／チラシ）が人間確認OKでstatus: done。続けてTASK-2026-0004（イラスト）を実装完了（E-17）。これで要件定義書のデザインカテゴリ（Web/ロゴ/イラスト/バナー）は全て実働する状態。詳細は [[ADR-0007-ai-loop-engine-build]]。既知の未実装範囲（CMSライブ投入・EPS/Lottie/HTML5バナー等の拡張出力形式・出力形式プラグイン・コスト計測等）はREADME.mdの対応表参照。**
+- 直近の人間アクション：①`02_Tasks/TASK-2026-0001-watashiwa-lulu-web.md` と `03_Outputs/PROJECT-001-watashiwa-lulu/` を確認し、問題なければ status を `approval` → `done` に変更する。②TASK-2026-0004をCheckerで検査してもらい（受入条件との3値判定）、通れば人間が完了確認する。
 
 ---
 
@@ -88,7 +88,7 @@
 
 ### PROJECT-002：AI LOOPエンジン開発（要件定義書v1.1準拠） — 🔄 実装中
 
-> Vault自身の運用管理（P1〜P4のフェーズゲート）とは別の切り分け。詳細は [[ADR-0007-ai-loop-engine-build]]。Phase1（Webサイト向けコアループ）はTASK-2026-0002で完了（status: done）。Phase2（ロゴ／バナー／チラシ向けコアループ）をTASK-2026-0003で実装した。イラストは対象外（登録スタブのまま）、CMSライブ投入等は引き続きレジストリ（拡張点）のみ。
+> Vault自身の運用管理（P1〜P4のフェーズゲート）とは別の切り分け。詳細は [[ADR-0007-ai-loop-engine-build]]。Phase1（Webサイト向けコアループ）はTASK-2026-0002、Phase2（ロゴ／バナー／チラシ向けコアループ）はTASK-2026-0003、イラストはTASK-2026-0004で実装した。要件定義書のデザインカテゴリ（Web/ロゴ/イラスト/バナー）は全て実働する。CMSライブ投入・拡張出力形式（EPS/Lottie/HTML5バナー等）は引き続きレジストリ（拡張点）のみ／未実装。
 
 | ID | 成果物 | 状態 | メモ |
 |----|--------|------|------|
@@ -107,7 +107,8 @@
 | E-13 | outputSizes解決（brief.outputSizes／カテゴリ既定値）＋graphicPostProcess（SVG→PNGラスタライズ・プレビューHTML・artboards-manifest.json） | ✅ | AIが書くのはSVGのみ、ラスタ化は機械的処理 |
 | E-14 | 新規検証チェック（svg-lint／multi-size-output／brand-consistency）＋visualDiffのアートボード複数対応 | ✅ | svg-lintは実DOMParser、brand-consistencyはpngjsで実ピクセルサンプリング |
 | E-15 | logo/banner/flyerテンプレート実装＋wordpressアダプタのカテゴリガード | ✅ | チラシは要件定義書に無いカテゴリをF-602パターンで新設（デジタル用途限定・4.2の対象外事項を明記） |
-| E-16 | サンプル案件（logoカテゴリ）での一気通貫動作確認＋ユニットテスト＋Webサイト回帰確認 | ✅ | SVG構造不備（viewBox欠落）→不適合→修正→適合の反復を実機確認。node --test 31件通過（新規14件）。Webサイトカテゴリの回帰無しを別案件で確認 |
+| E-16 | サンプル案件（logoカテゴリ）での一気通貫動作確認＋ユニットテスト＋Webサイト回帰確認 | ✅ | SVG構造不備（viewBox欠落）→不適合→修正→適合の反復を実機確認。node --test 31件通過（新規14件）。Webサイトカテゴリの回帰無しを別案件で確認。TASK-2026-0003はここで人間確認OK・status: done |
+| E-17 | illustrationテンプレート実装（TASK-2026-0004） | ✅ | TASK-2026-0003の共通基盤（GraphicDesignSpec/graphicPostProcess/検証チェック）をテンプレート追加のみで流用（F-601/602）。サンプル案件でブランド整合性不適合（オフブランド配色）→修正→適合の反復を実機確認。Lottieは拡張出力形式のため未実装 |
 
 ---
 

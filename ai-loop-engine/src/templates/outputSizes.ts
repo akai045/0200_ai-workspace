@@ -13,6 +13,8 @@ const CATEGORY_DEFAULT_SIZES: Partial<Record<Project["category"], OutputSizeSpec
   ],
   // A4相当・画面プレビュー用（4.2により物理的な色校正・入稿品質保証の対象外。RGB/画面表示前提の既定値）。
   flyer: [{ label: "a4-digital-preview", width: 1240, height: 1754 }],
+  // アイキャッチ画像相当（OGP等でよく使われる比率）。アイコンセット等はbrief.outputSizesで明示指定する想定。
+  illustration: [{ label: "eyecatch-1200x630", width: 1200, height: 630 }],
 };
 
 export function resolveOutputSizes(project: Project): OutputSizeSpec[] {

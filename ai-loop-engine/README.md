@@ -1,8 +1,8 @@
 # ai-loop-engine
 
-要件定義書（`00_Inbox/00_attachment_files/20260803/AI_LOOP_要件定義書_v1−1.docx`）に基づく、AI LOOP（デザイン生成→実装生成→検証→修正の反復ループ）の実装。Phase1（Webサイト向けコア）に加え、Phase2としてロゴ・バナー・チラシ（デジタル版）向けコアループを実装済み。
+要件定義書（`00_Inbox/00_attachment_files/20260803/AI_LOOP_要件定義書_v1−1.docx`）に基づく、AI LOOP（デザイン生成→実装生成→検証→修正の反復ループ）の実装。Phase1（Webサイト向けコア）・Phase2（ロゴ・バナー・チラシ〔デジタル版〕・イラスト向けコアループ）とも実装済み。要件定義書のデザインカテゴリ（Web/ロゴ/イラスト/バナー）は全て実働する状態。
 
-意思決定の背景は [`../08_Decisions/ADR-0007-ai-loop-engine-build.md`](../08_Decisions/ADR-0007-ai-loop-engine-build.md)、開発タスクは [`../02_Tasks/TASK-2026-0002-ai-loop-engine-phase1.md`](../02_Tasks/TASK-2026-0002-ai-loop-engine-phase1.md)（Phase1）・[`../02_Tasks/TASK-2026-0003-ai-loop-engine-phase2-graphics.md`](../02_Tasks/TASK-2026-0003-ai-loop-engine-phase2-graphics.md)（Phase2）を参照。
+意思決定の背景は [`../08_Decisions/ADR-0007-ai-loop-engine-build.md`](../08_Decisions/ADR-0007-ai-loop-engine-build.md)、開発タスクは [`../02_Tasks/TASK-2026-0002-ai-loop-engine-phase1.md`](../02_Tasks/TASK-2026-0002-ai-loop-engine-phase1.md)（Phase1）・[`../02_Tasks/TASK-2026-0003-ai-loop-engine-phase2-graphics.md`](../02_Tasks/TASK-2026-0003-ai-loop-engine-phase2-graphics.md)（Phase2：ロゴ/バナー/チラシ）・[`../02_Tasks/TASK-2026-0004-ai-loop-engine-illustration.md`](../02_Tasks/TASK-2026-0004-ai-loop-engine-illustration.md)（Phase2追加：イラスト）を参照。
 
 このディレクトリはVault本体（`00_Inbox`〜`10_Runs`）とは別の、**成果物としてのソフトウェア**。Vault自身の運用管理（タスクのstatus管理等）には影響しない。
 
@@ -17,7 +17,7 @@ npx playwright install chromium   # アクセシビリティ・レスポンシ�
 ## コマンド
 
 ```bash
-npm run ai-loop -- project:init --id <project-id> --title "..." [--template website|logo|banner|flyer] [--brief <path-to-brief.json>]
+npm run ai-loop -- project:init --id <project-id> --title "..." [--template website|logo|banner|flyer|illustration] [--brief <path-to-brief.json>]
 npm run ai-loop -- material:add --project <project-id> --file <path> --usage header-logo --fixed
 npm run ai-loop -- design:generate --project <project-id> [--brief <path-to-brief.json>]
 npm run ai-loop -- design:select --project <project-id> --version <n> --candidate <c>
@@ -46,10 +46,12 @@ npm run ai-loop -- approve --project <project-id>
 | `src/templates/logo/` | F-103, F-206 | 実装（SVGベクター＋PNG複数解像度） |
 | `src/templates/banner/` | F-105, F-207 | 実装（サイズごとに1アートボード、PNGマルチサイズ出力） |
 | `src/templates/flyer/` | 5.6/F-602（新規カテゴリ、要件定義書には無いカテゴリをテンプレート追加のみで拡張） | 実装（デジタル閲覧・データ入稿用途に限定。4.2により紙媒体の物理的な色校正・入稿品質保証は対象外） |
-| `src/templates/illustration/` | F-104, 5.6 | **登録スタブのみ**（対象外・Phase2スコープ外） |
+| `src/templates/illustration/` | F-104, 5.6 | 実装（アイキャッチ・キャラクター・アイコンセット。SVGベクター＋PNG。Lottie〔アニメーション〕は拡張出力形式として未実装） |
 | `src/adapters/output/staticHtml.ts` | F-701, F-704 | 実装（archiverによるzip書き出し。全カテゴリ共通） |
 | `src/adapters/cms/wordpress/` | F-301, F-302 | 実装（Webサイトカテゴリ専用。`<header>/<main>/<footer>`規約前提のテーマファイル変換。詳細は下記「設計上の制約」参照） |
 | `src/adapters/cms/*`（WordPress以外） | F-305 | **登録スタブのみ**（microCMS/Shopify/Movable Type） |
+| ロゴのEPS・バナーのHTML5アニメーション・イラストのLottie（各拡張出力形式） | F-206/207・7.2 | 未実装（いずれもCould優先度・拡張出力形式。標準出力〔SVG/PNG〕のみ対応） |
+| 出力形式プラグイン機構（Figma/Sketch等） | F-603 | 未実装（Could優先度） |
 | ライブCMS投入 | F-304 | 未実装（Could優先度・資格情報が無いため） |
 | 認証情報暗号化保管 | NF-302 | 未実装（ライブ投入自体が未実装のため） |
 | コスト計測・上限アラート | NF-403 | 未実装（Phase5相当） |
