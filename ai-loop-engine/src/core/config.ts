@@ -9,6 +9,10 @@ export interface ConvergenceConfig {
   maxLintWarnings: number;
   accessibilityLevel: "A" | "AA" | "AAA";
   maxIterations: number;
+  /** F-405: ブランドカラーとのRGBユークリッド距離の許容値（0〜441）。 */
+  brandColorToleranceDistance: number;
+  /** F-405: 有彩色画素のうちブランドカラー近似と判定される割合の下限。 */
+  brandColorMinCompliantFraction: number;
 }
 
 export interface AiLoopConfig {

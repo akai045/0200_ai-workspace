@@ -5,7 +5,9 @@
  */
 import type { DesignEngine, DesignGenerationRequest } from "../designEngine.js";
 import type { ImplementationEngine, ImplementationGenerationRequest } from "../implementationEngine.js";
-import type { DesignSpec } from "../../core/types.js";
+import type { DesignSpec, GraphicDesignSpec } from "../../core/types.js";
+import { artboardIdFor, resolveOutputSizes } from "../../templates/outputSizes.js";
+import { postProcessGraphicArtifacts } from "../graphicPostProcess.js";
 
 const DEFAULT_MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-5";
 
@@ -47,10 +49,17 @@ function extractJson<T>(text: string): T {
 export const claudeApiDesignEngine: DesignEngine = {
   name: "claudeApi",
   async generateDesigns(request: DesignGenerationRequest): Promise<DesignSpec[]> {
-    const prompt =
-      `以下の要件でWebサイトのデザイン案を${request.candidateCount}件、JSONのみで出力してください（説明文は不要）。\n` +
-      `出力形式: {"designs": [{"pages": [...], "colorPalette": [...], "typography": {...}, "usedMaterialIds": [...]}]}\n` +
-      `要件: ${JSON.stringify({ brief: request.project.brief, materials: request.materials, materialGaps: request.materialGaps })}`;
+    const isGraphic = request.project.category !== "website";
+    const prompt = isGraphic
+      ? `以下の要件で成果物カテゴリ「${request.project.category}」のデザイン案を${request.candidateCount}件、JSONのみで出力してください（説明文は不要）。\n` +
+        `各案は次のアートボード一覧（1サイズにつき1アートボード、idはそのまま使用）で構成してください: ${JSON.stringify(
+          resolveOutputSizes(request.project).map((s) => ({ id: artboardIdFor(s), label: s.label, width: s.width, height: s.height })),
+        )}\n` +
+        '出力形式: {"designs": [{"kind": "graphic", "artboards": [{"id":"...","label":"...","width":0,"height":0,"elements":[...],"materialId":"任意"}], "colorPalette": [...], "typography": {...}, "usedMaterialIds": [...]}]}\n' +
+        `要件: ${JSON.stringify({ brief: request.project.brief, materials: request.materials, materialGaps: request.materialGaps })}`
+      : `以下の要件でWebサイトのデザイン案を${request.candidateCount}件、JSONのみで出力してください（説明文は不要）。\n` +
+        '出力形式: {"designs": [{"kind": "website", "pages": [...], "colorPalette": [...], "typography": {...}, "usedMaterialIds": [...]}]}\n' +
+        `要件: ${JSON.stringify({ brief: request.project.brief, materials: request.materials, materialGaps: request.materialGaps })}`;
     const text = await callClaude(prompt);
     const parsed = extractJson<{ designs: DesignSpec[] }>(text);
     return parsed.designs;
@@ -60,11 +69,17 @@ export const claudeApiDesignEngine: DesignEngine = {
 export const claudeApiImplementationEngine: ImplementationEngine = {
   name: "claudeApi",
   async generateImplementation(request: ImplementationGenerationRequest): Promise<{ files: string[] }> {
-    const prompt =
-      "以下のデザイン仕様をセマンティックなHTML/レスポンシブCSS/必要に応じたJSへ変換し、JSONのみで出力してください。\n" +
-      '出力形式: {"files": [{"path": "index.html", "content": "..."}]}\n' +
-      `デザイン仕様: ${JSON.stringify(request.selectedDesign)}\n` +
-      `固定素材（そのまま参照するのみ、改変禁止）: ${JSON.stringify(request.materials.filter((m) => m.fixed))}`;
+    const isGraphic = request.selectedDesign.kind === "graphic";
+    const prompt = isGraphic
+      ? "以下のデザイン仕様(artboards)の各アートボードについて、artboards/<id>.svg というパスでSVGマークアップを1ファイルずつ出力してください。" +
+        "ルート要素にはviewBoxまたはwidth/height属性を含め、width/heightはアートボードの値と一致させてください。JSONのみで出力してください。\n" +
+        '出力形式: {"files": [{"path": "artboards/<id>.svg", "content": "<svg ...>...</svg>"}]}\n' +
+        `デザイン仕様: ${JSON.stringify(request.selectedDesign)}\n` +
+        `固定素材（そのまま参照するのみ、改変禁止）: ${JSON.stringify(request.materials.filter((m) => m.fixed))}`
+      : "以下のデザイン仕様をセマンティックなHTML/レスポンシブCSS/必要に応じたJSへ変換し、JSONのみで出力してください。\n" +
+        '出力形式: {"files": [{"path": "index.html", "content": "..."}]}\n' +
+        `デザイン仕様: ${JSON.stringify(request.selectedDesign)}\n` +
+        `固定素材（そのまま参照するのみ、改変禁止）: ${JSON.stringify(request.materials.filter((m) => m.fixed))}`;
     const text = await callClaude(prompt);
     const parsed = extractJson<{ files: { path: string; content: string }[] }>(text);
     const { mkdir, writeFile } = await import("node:fs/promises");
@@ -76,6 +91,17 @@ export const claudeApiImplementationEngine: ImplementationEngine = {
       await writeFile(dest, file.content, "utf-8");
       files.push(file.path);
     }
-    return { files };
+
+    let extraFiles: string[] = [];
+    if (request.selectedDesign.kind === "graphic") {
+      const result = await postProcessGraphicArtifacts(
+        request.outputDir,
+        (request.selectedDesign as GraphicDesignSpec).artboards,
+        files,
+      );
+      extraFiles = result.files;
+    }
+
+    return { files: [...files, ...extraFiles] };
   },
 };

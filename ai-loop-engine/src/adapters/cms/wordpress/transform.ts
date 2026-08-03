@@ -6,7 +6,7 @@
  */
 import { dirname, extname, join } from "node:path";
 import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
-import type { DesignSpec, ImplementationArtifact, Project } from "../../../core/types.js";
+import type { ImplementationArtifact, Project, WebsiteDesignSpec } from "../../../core/types.js";
 import { ensureDir, fileExists } from "../../../store/fileStore.js";
 
 export interface ThemeFile {
@@ -181,7 +181,7 @@ export interface BuildThemeResult {
 
 export async function buildWordpressTheme(
   project: Project,
-  designSpec: DesignSpec,
+  designSpec: WebsiteDesignSpec,
   artifact: ImplementationArtifact,
 ): Promise<BuildThemeResult> {
   const warnings: string[] = [];

@@ -3,6 +3,7 @@
  * Phase1のデザイン生成エンジン（manualHandoff/claudeApi）は画像モックアップを生成しないため、
  * 「デザイン案画像 vs 実装レンダリング」ではなく「前回反復 vs 今回反復」のスクリーンショット差分として実装する
  * （デザイン案が画像として生成されるようになった時点で本来の比較へ切り替える。この限定は隠さずissuesに明記する）。
+ * Webサイトはページ全体1点、ロゴ/バナー/チラシ等はアートボードごとに複数ターゲットを比較する。
  */
 import type { BrowserContext } from "playwright";
 import { pathToFileURL } from "node:url";
@@ -14,32 +15,34 @@ import type { VerificationCheck } from "../core/types.js";
 import { ensureDir, fileExists } from "../store/fileStore.js";
 import { verificationResultsDir } from "../store/paths.js";
 
-const VIEWPORT = { width: 1280, height: 800 };
 const LABEL = "ビジュアル差分（前回反復とのスクリーンショット比較）";
 
-export async function checkVisualDiff(
+export interface VisualDiffTarget {
+  id: string;
+  label: string;
+  relPath: string;
+  viewport: { width: number; height: number };
+}
+
+async function diffOneTarget(
   context: BrowserContext,
-  projectId: string,
+  screenshotsDir: string,
   version: number,
   outputDir: string,
-  entryHtmlRelPath: string | undefined,
+  target: VisualDiffTarget,
   minScore: number,
-): Promise<VerificationCheck> {
-  if (!entryHtmlRelPath) {
-    return { id: "visual-diff", label: LABEL, verdict: "判定不能", issues: ["比較対象のエントリHTMLが見つかりません。"] };
-  }
-
-  const screenshotsDir = join(verificationResultsDir(projectId), "screenshots");
-  await ensureDir(screenshotsDir);
-  const currentPath = join(screenshotsDir, `v${version}.png`);
-  const previousPath = join(screenshotsDir, `v${version - 1}.png`);
+): Promise<{ label: string; score?: number; verdict: "適合" | "不適合" | "判定不能"; note: string }> {
+  const targetDir = join(screenshotsDir, target.id);
+  await ensureDir(targetDir);
+  const currentPath = join(targetDir, `v${version}.png`);
+  const previousPath = join(targetDir, `v${version - 1}.png`);
 
   const page = await context.newPage();
   let buffer: Buffer;
   try {
-    await page.setViewportSize(VIEWPORT);
-    await page.goto(pathToFileURL(join(outputDir, entryHtmlRelPath)).toString());
-    buffer = await page.screenshot();
+    await page.setViewportSize(target.viewport);
+    await page.goto(pathToFileURL(join(outputDir, target.relPath)).toString());
+    buffer = await page.screenshot({ clip: { x: 0, y: 0, ...target.viewport } });
   } finally {
     await page.close();
   }
@@ -47,13 +50,9 @@ export async function checkVisualDiff(
 
   if (version <= 1 || !(await fileExists(previousPath))) {
     return {
-      id: "visual-diff",
-      label: LABEL,
+      label: target.label,
       verdict: "判定不能",
-      issues: [
-        "初回反復のためベースラインのスクリーンショットを記録しました（次回以降の反復と比較します）。",
-        "Phase1ではデザイン案が画像として生成されないため、本チェックは『デザイン案との一致度』ではなく『反復間の安定度』を見るものです。",
-      ],
+      note: `${target.label}: 初回反復のためベースラインを記録しました（次回以降と比較します）。`,
     };
   }
 
@@ -61,12 +60,9 @@ export async function checkVisualDiff(
   const previousImg = PNG.sync.read(await readFile(previousPath));
   if (currentImg.width !== previousImg.width || currentImg.height !== previousImg.height) {
     return {
-      id: "visual-diff",
-      label: LABEL,
+      label: target.label,
       verdict: "判定不能",
-      issues: [
-        `画像サイズが前回(${previousImg.width}x${previousImg.height})と今回(${currentImg.width}x${currentImg.height})で異なるため比較できません。`,
-      ],
+      note: `${target.label}: 画像サイズが前回(${previousImg.width}x${previousImg.height})と今回(${currentImg.width}x${currentImg.height})で異なるため比較できません。`,
     };
   }
 
@@ -83,13 +79,40 @@ export async function checkVisualDiff(
   const score = 1 - diffPixels / totalPixels;
 
   return {
-    id: "visual-diff",
-    label: LABEL,
-    verdict: score >= minScore ? "適合" : "不適合",
+    label: target.label,
     score,
-    issues:
+    verdict: score >= minScore ? "適合" : "不適合",
+    note:
       score >= minScore
-        ? []
-        : [`一致度${(score * 100).toFixed(1)}%が閾値${(minScore * 100).toFixed(0)}%未満です（差分ピクセル${diffPixels}/${totalPixels}）。`],
+        ? `${target.label}: 一致度${(score * 100).toFixed(1)}%（閾値${(minScore * 100).toFixed(0)}%以上）。`
+        : `${target.label}: 一致度${(score * 100).toFixed(1)}%が閾値${(minScore * 100).toFixed(0)}%未満です（差分ピクセル${diffPixels}/${totalPixels}）。`,
   };
+}
+
+export async function checkVisualDiff(
+  context: BrowserContext,
+  projectId: string,
+  version: number,
+  outputDir: string,
+  targets: VisualDiffTarget[],
+  minScore: number,
+): Promise<VerificationCheck> {
+  if (targets.length === 0) {
+    return { id: "visual-diff", label: LABEL, verdict: "判定不能", issues: ["比較対象のエントリファイルが見つかりません。"] };
+  }
+
+  const screenshotsDir = join(verificationResultsDir(projectId), "screenshots");
+  await ensureDir(screenshotsDir);
+
+  const results = await Promise.all(
+    targets.map((target) => diffOneTarget(context, screenshotsDir, version, outputDir, target, minScore)),
+  );
+
+  const issues = results.map((r) => r.note);
+  const scored = results.filter((r): r is typeof r & { score: number } => r.score !== undefined);
+  const anyFailed = results.some((r) => r.verdict === "不適合");
+  const verdict: "適合" | "不適合" | "判定不能" = anyFailed ? "不適合" : scored.length > 0 ? "適合" : "判定不能";
+  const averageScore = scored.length > 0 ? scored.reduce((sum, r) => sum + r.score, 0) / scored.length : undefined;
+
+  return { id: "visual-diff", label: LABEL, verdict, score: averageScore, issues };
 }

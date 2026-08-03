@@ -4,7 +4,7 @@
  * VerificationResult / OutputTemplate / CmsAdapterConfig。
  */
 
-export type ProjectCategory = "website" | "logo" | "illustration" | "banner";
+export type ProjectCategory = "website" | "logo" | "illustration" | "banner" | "flyer";
 
 export type ProjectStatus =
   | "draft"
@@ -22,6 +22,13 @@ export interface BrandGuideline {
   logoUsageRules?: string;
 }
 
+/** F-105/206/207: 生成・検証の両方が同じ値を参照する、機械可読なサイズ要求。 */
+export interface OutputSizeSpec {
+  label: string;
+  width: number;
+  height: number;
+}
+
 export interface DesignBrief {
   purpose: string;
   targetAudience?: string;
@@ -30,7 +37,10 @@ export interface DesignBrief {
   referenceImages?: string[];
   referenceUrls?: string[];
   outputFormat: string;
+  /** 人間向けの自由記述（例：「名刺サイズ、横向き」）。機械判定にはoutputSizesを使う。 */
   sizeSpec?: string;
+  /** 未指定の場合はカテゴリごとの既定値（templates/outputSizes.ts）を使う。 */
+  outputSizes?: OutputSizeSpec[];
 }
 
 export interface Project {
@@ -76,12 +86,35 @@ export interface DesignPageSpec {
   sections: DesignSectionSpec[];
 }
 
-export interface DesignSpec {
+export interface WebsiteDesignSpec {
+  kind: "website";
   pages: DesignPageSpec[];
   colorPalette: string[];
   typography: { heading: string; body: string };
   usedMaterialIds: string[];
 }
+
+/** ロゴ/バナー/チラシ等、単一〜複数アートボード（固定サイズのキャンバス）で完結する成果物のデザイン仕様。 */
+export interface GraphicArtboardSpec {
+  /** OutputSizeSpecから機械的に決まるid（templates/outputSizes.ts の artboardIdFor）。実装生成時のファイル名対応に使う。 */
+  id: string;
+  label: string;
+  width: number;
+  height: number;
+  elements: DesignSectionSpec[];
+  materialId?: string;
+}
+
+export interface GraphicDesignSpec {
+  kind: "graphic";
+  artboards: GraphicArtboardSpec[];
+  colorPalette: string[];
+  typography: { heading: string; body: string };
+  usedMaterialIds: string[];
+}
+
+/** kindで判別する（Webサイト＝ページ構成、それ以外＝アートボード構成）。 */
+export type DesignSpec = WebsiteDesignSpec | GraphicDesignSpec;
 
 /** F-106: 1回の生成で複数案（既定3案）を提示する。version×candidateIndexで一意。 */
 export interface DesignVersion {
@@ -112,7 +145,10 @@ export type VerificationCheckId =
   | "accessibility"
   | "responsive"
   | "visual-diff"
-  | "materials-unchanged";
+  | "materials-unchanged"
+  | "svg-lint"
+  | "multi-size-output"
+  | "brand-consistency";
 
 /** Checker既存の3値判定（適合/不適合/判定不能）を検証エンジンの各項目にも適用する。 */
 export type VerificationVerdict = "適合" | "不適合" | "判定不能";

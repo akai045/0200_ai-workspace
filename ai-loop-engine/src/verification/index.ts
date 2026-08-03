@@ -13,10 +13,15 @@ import { checkJsLint } from "./jsLint.js";
 import { openBrowserSession } from "./browserSession.js";
 import { checkAccessibility } from "./accessibility.js";
 import { checkResponsive } from "./responsive.js";
-import { checkVisualDiff } from "./visualDiff.js";
+import { checkVisualDiff, type VisualDiffTarget } from "./visualDiff.js";
 import { checkMaterialsUnchanged } from "./materialsUnchanged.js";
+import { checkSvgLint } from "./svgLint.js";
+import { checkMultiSizeOutput } from "./multiSizeOutput.js";
+import { checkBrandConsistency } from "./brandConsistency.js";
 import { judgeConvergence } from "./convergence.js";
 import { renderMarkdownReport } from "./report.js";
+import { tryReadArtboardsManifest } from "../generation/graphicPostProcess.js";
+import { resolveOutputSizes } from "../templates/outputSizes.js";
 
 export interface RunVerificationOutcome {
   result: VerificationResult;
@@ -44,8 +49,11 @@ export async function runVerification(projectId: string, version: number): Promi
   }
 
   const htmlFiles = artifact.files.filter((f) => f.endsWith(".html"));
+  const svgFiles = artifact.files.filter((f) => f.endsWith(".svg"));
   const entryHtml = htmlFiles.find((f) => f === "index.html") ?? htmlFiles[0];
-  const needsBrowser = required.has("accessibility") || required.has("responsive") || required.has("visual-diff");
+  const manifest = project.category === "website" ? undefined : await tryReadArtboardsManifest(artifact.outputDir);
+  const needsBrowser =
+    required.has("accessibility") || required.has("responsive") || required.has("visual-diff") || required.has("svg-lint");
 
   if (needsBrowser) {
     const session = await openBrowserSession();
@@ -62,17 +70,20 @@ export async function runVerification(projectId: string, version: number): Promi
           await checkResponsive(session.context, artifact.outputDir, htmlFiles, config.breakpoints),
         );
       }
+      if (required.has("svg-lint")) {
+        checksById.set("svg-lint", await checkSvgLint(session.context, artifact.outputDir, svgFiles));
+      }
       if (required.has("visual-diff")) {
+        const targets: VisualDiffTarget[] = manifest
+          ? manifest.artboards
+              .filter((a): a is typeof a & { previewPath: string } => !!a.previewPath)
+              .map((a) => ({ id: a.id, label: a.label, relPath: a.previewPath, viewport: { width: a.width, height: a.height } }))
+          : entryHtml
+            ? [{ id: "page", label: project.title, relPath: entryHtml, viewport: { width: 1280, height: 800 } }]
+            : [];
         checksById.set(
           "visual-diff",
-          await checkVisualDiff(
-            session.context,
-            projectId,
-            version,
-            artifact.outputDir,
-            entryHtml,
-            config.convergence.visualDiffMinScore,
-          ),
+          await checkVisualDiff(session.context, projectId, version, artifact.outputDir, targets, config.convergence.visualDiffMinScore),
         );
       }
     } finally {
@@ -82,6 +93,24 @@ export async function runVerification(projectId: string, version: number): Promi
 
   if (required.has("materials-unchanged")) {
     checksById.set("materials-unchanged", await checkMaterialsUnchanged(artifact.outputDir, materials));
+  }
+  if (required.has("multi-size-output")) {
+    checksById.set(
+      "multi-size-output",
+      await checkMultiSizeOutput(artifact.outputDir, manifest, resolveOutputSizes(project)),
+    );
+  }
+  if (required.has("brand-consistency")) {
+    checksById.set(
+      "brand-consistency",
+      await checkBrandConsistency(
+        artifact.outputDir,
+        manifest,
+        project.brief.brandGuideline?.colors,
+        config.convergence.brandColorToleranceDistance,
+        config.convergence.brandColorMinCompliantFraction,
+      ),
+    );
   }
 
   const checks = template.requiredVerificationChecks

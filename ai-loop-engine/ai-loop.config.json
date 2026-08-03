@@ -6,7 +6,9 @@
     "maxLintErrors": 0,
     "maxLintWarnings": 5,
     "accessibilityLevel": "AA",
-    "maxIterations": 5
+    "maxIterations": 5,
+    "brandColorToleranceDistance": 60,
+    "brandColorMinCompliantFraction": 0.5
   },
   "breakpoints": [375, 768, 1280],
   "designCandidateCount": 3

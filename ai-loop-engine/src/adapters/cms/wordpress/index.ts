@@ -4,6 +4,11 @@ import type { ExportAdapter, ExportInput, ExportResult } from "../../types.js";
 import { buildWordpressTheme, writeThemeFiles } from "./transform.js";
 
 async function run(input: ExportInput): Promise<ExportResult> {
+  if (input.project.category !== "website") {
+    throw new Error(
+      `wordpressアダプタはWebサイトカテゴリ専用です（対象プロジェクトのカテゴリ: ${input.project.category}）。static-htmlアダプタを使用してください。`,
+    );
+  }
   const candidates = await listDesignVersions(input.project.id, input.artifact.designVersion);
   const selected = candidates.find((c) => c.candidateIndex === input.artifact.designCandidateIndex);
   if (!selected) {
@@ -12,6 +17,9 @@ async function run(input: ExportInput): Promise<ExportResult> {
     );
   }
 
+  if (selected.spec.kind !== "website") {
+    throw new Error(`デザイン版のkindが"website"ではありません（実際: ${selected.spec.kind}）。データ不整合の可能性があります。`);
+  }
   const themeDir = join(input.exportsDir, `${input.project.id}-v${input.artifact.version}-wordpress`);
   const built = await buildWordpressTheme(input.project, selected.spec, input.artifact);
   const files = await writeThemeFiles(themeDir, built, input.artifact);

@@ -20,6 +20,7 @@ import type { DesignSpec } from "../src/core/types.js";
 const TEST_PROJECT_ID = "test-store-project";
 
 const EMPTY_DESIGN: DesignSpec = {
+  kind: "website",
   pages: [],
   colorPalette: ["#000000"],
   typography: { heading: "sans", body: "sans" },

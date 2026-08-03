@@ -1,7 +1,8 @@
 import { registerWebsiteTemplate } from "./website/template.js";
-import { registerLogoTemplateStub } from "./logo/template.js";
+import { registerLogoTemplate } from "./logo/template.js";
 import { registerIllustrationTemplateStub } from "./illustration/template.js";
-import { registerBannerTemplateStub } from "./banner/template.js";
+import { registerBannerTemplate } from "./banner/template.js";
+import { registerFlyerTemplate } from "./flyer/template.js";
 
 let registered = false;
 
@@ -9,9 +10,10 @@ let registered = false;
 export function registerAllTemplates(): void {
   if (registered) return;
   registerWebsiteTemplate();
-  registerLogoTemplateStub();
+  registerLogoTemplate();
   registerIllustrationTemplateStub();
-  registerBannerTemplateStub();
+  registerBannerTemplate();
+  registerFlyerTemplate();
   registered = true;
 }
 

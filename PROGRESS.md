@@ -4,8 +4,8 @@
 > 作業を一段落させるたびにここを更新する。詳細な設計は `SPEC.md`、不変条件は `CLAUDE.md`、方針変更は `08_Decisions/`（ADR）を正とする。
 
 - 最終更新: 2026-08-03
-- 現在地: **P1-V完了（PROJECT-001、approval待ち・変更なし）に加え、PROJECT-002「AI LOOPエンジン開発」（TASK-2026-0002）はE-1〜E-11のスキャフォールド〜CLI〜ユニットテストまで実装完了、サンプル案件（sample-site）でdesign:generate→select→impl:generate→verify（意図的lintエラーで不適合→修正→適合）→approve→export（static-html／wordpress）の一気通貫動作を確認した。status: doing のまま（Checker未実施）。詳細は [[ADR-0007-ai-loop-engine-build]]。**
-- 直近の人間アクション：①`02_Tasks/TASK-2026-0001-watashiwa-lulu-web.md` と `03_Outputs/PROJECT-001-watashiwa-lulu/` を確認し、問題なければ status を `approval` → `done` に変更する。②TASK-2026-0002をCheckerで検査してもらい（受入条件との3値判定）、通れば人間が `doing` → 完了確認の要否を判断する。
+- 現在地: **P1-V完了（PROJECT-001、approval待ち・変更なし）に加え、PROJECT-002「AI LOOPエンジン開発」はTASK-2026-0002（Phase1・Webサイト向けコアループ）が人間確認OKでstatus: done。続けてTASK-2026-0003（Phase2・ロゴ／バナー／チラシ向けコアループ）を実装完了（E-12〜E-16）。サンプル案件（logoカテゴリ）でdesign:generate→select→impl:generate→verify（意図的なSVG構造不備で不適合→修正→適合）→approve→export（static-html）の一気通貫動作を確認し、Webサイトカテゴリの回帰も無いことを確認した。status: doing のまま（Checker未実施）。詳細は [[ADR-0007-ai-loop-engine-build]]。**
+- 直近の人間アクション：①`02_Tasks/TASK-2026-0001-watashiwa-lulu-web.md` と `03_Outputs/PROJECT-001-watashiwa-lulu/` を確認し、問題なければ status を `approval` → `done` に変更する。②TASK-2026-0003をCheckerで検査してもらい（受入条件との3値判定）、通れば人間が `doing` → 完了確認の要否を判断する。
 
 ---
 
@@ -88,7 +88,7 @@
 
 ### PROJECT-002：AI LOOPエンジン開発（要件定義書v1.1準拠） — 🔄 実装中
 
-> Vault自身の運用管理（P1〜P4のフェーズゲート）とは別の切り分け。詳細は [[ADR-0007-ai-loop-engine-build]]。対象は要件定義書のPhase1（Webサイト向けコアループ）のみ。ロゴ／イラスト／バナー／CMSライブ投入等はレジストリ（拡張点）のみ用意し、中身は実測後に着手する。
+> Vault自身の運用管理（P1〜P4のフェーズゲート）とは別の切り分け。詳細は [[ADR-0007-ai-loop-engine-build]]。Phase1（Webサイト向けコアループ）はTASK-2026-0002で完了（status: done）。Phase2（ロゴ／バナー／チラシ向けコアループ）をTASK-2026-0003で実装した。イラストは対象外（登録スタブのまま）、CMSライブ投入等は引き続きレジストリ（拡張点）のみ。
 
 | ID | 成果物 | 状態 | メモ |
 |----|--------|------|------|
@@ -102,7 +102,12 @@
 | E-8 | orchestrator（収束判定・人間チェックポイント） | ✅ | design:select必須・approve明示操作必須を実装 |
 | E-9 | output/CMSアダプタ（staticHtml／wordpress）+ レジストリ | ✅ | WordPress以外（microCMS/Shopify/Movable Type）は登録スタブのみ |
 | E-10 | CLI | ✅ | project:init〜approveの9コマンド |
-| E-11 | サンプル案件での一気通貫動作確認＋ユニットテスト | ✅ | 意図的なlintエラー（重複id）→不適合→修正→適合の反復を実機確認。node --test 17件通過 |
+| E-11 | サンプル案件での一気通貫動作確認＋ユニットテスト | ✅ | 意図的なlintエラー（重複id）→不適合→修正→適合の反復を実機確認。node --test 17件通過。TASK-2026-0002はここで人間確認OK・status: done |
+| E-12 | core/types.tsのDesignSpec判別可能ユニオン化（WebsiteDesignSpec/GraphicDesignSpec）＋flyerカテゴリ追加 | ✅ | TASK-2026-0003 |
+| E-13 | outputSizes解決（brief.outputSizes／カテゴリ既定値）＋graphicPostProcess（SVG→PNGラスタライズ・プレビューHTML・artboards-manifest.json） | ✅ | AIが書くのはSVGのみ、ラスタ化は機械的処理 |
+| E-14 | 新規検証チェック（svg-lint／multi-size-output／brand-consistency）＋visualDiffのアートボード複数対応 | ✅ | svg-lintは実DOMParser、brand-consistencyはpngjsで実ピクセルサンプリング |
+| E-15 | logo/banner/flyerテンプレート実装＋wordpressアダプタのカテゴリガード | ✅ | チラシは要件定義書に無いカテゴリをF-602パターンで新設（デジタル用途限定・4.2の対象外事項を明記） |
+| E-16 | サンプル案件（logoカテゴリ）での一気通貫動作確認＋ユニットテスト＋Webサイト回帰確認 | ✅ | SVG構造不備（viewBox欠落）→不適合→修正→適合の反復を実機確認。node --test 31件通過（新規14件）。Webサイトカテゴリの回帰無しを別案件で確認 |
 
 ---
 

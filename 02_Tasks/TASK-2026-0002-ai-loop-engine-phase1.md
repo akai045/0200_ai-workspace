@@ -3,7 +3,7 @@ task_id: TASK-2026-0002
 title: AI LOOPエンジン Phase1（Webサイト向けコアループ）の実装
 objective: デザイン生成→実装生成→自動検証→収束判定→人間承認の一連をCLIで実行できるNode.js/TypeScript製システムをai-loop-engine/に構築し、サンプル案件で一気通貫の動作を確認する
 project: PROJECT-002
-status: doing
+status: done
 tier: T1
 owner: build-doer
 checker: checker
@@ -85,3 +85,6 @@ deadline:
 **未実施・対象外（既存README/ADR-0007の記載通り、Phase1スコープ外）**：CMSライブ投入（F-304）・認証情報暗号化保管（NF-302）・ロゴ/イラスト/バナーの中身実装・WordPress以外のCMSアダプタの中身実装。
 
 **次のアクション**：Checker検査（受入条件との3値判定）→ 通れば人間確認。
+
+## 人間確認（2026-08-03）
+ヒューマンチェックOK。status: doing → done。Phase1（Webサイト向けコアループ）完了として確定。次はPhase2（Webサイト以外のデザイン成果物向けコアループ）へ。
