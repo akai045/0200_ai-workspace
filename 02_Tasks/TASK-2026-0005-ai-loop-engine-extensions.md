@@ -3,7 +3,7 @@ task_id: TASK-2026-0005
 title: AI LOOPエンジン 拡張機能（非WordPress CMSアダプタ・コスト計測・EPS出力）の実装
 objective: 要件定義書の残タスクのうち、外部送信・実認証情報を伴わず安全に実装できる範囲（F-305・NF-403・F-206拡張）に着手する。ライブCMS投入（F-304）・商標類似度チェック（NF-303）・アニメーション系拡張出力（Lottie・HTML5バナー）・Figma/Sketchプラグイン（F-603）は今回のスコープ外とし、理由を明記する
 project: PROJECT-002
-status: checking
+status: done
 tier: T1
 owner: build-doer
 checker: checker
@@ -74,3 +74,18 @@ deadline:
 
 ## 人間判断（2026-08-03）
 ライブCMS投入（F-304）は「今回は見送る」との判断を確認。実投入先・認証情報の取り扱い方針が固まっていない限り着手しない（CLAUDE.md §3.4のT2手続き・恒久ルールの通り）。README.md「未実装」欄の記載はこの判断と一致しており、変更不要。
+
+## Checker検査（2026-08-03T00:00:00+09:00）
+コード（src/adapters/cms/{microcms,shopify,movableType}/index.ts、src/cost/tracker.ts、src/generation/engines/claudeApi.ts・manualHandoff.ts、src/adapters/output/svgToEps.ts・epsExport.ts）を直接読み、`npm run typecheck`・`npm test`を自ら実行し、git logで対象コミット（b1bc00c・d550bde）の変更範囲を確認した。
+
+1. CMS3アダプタ（実データ形式変換）: 適合。microCMS＝PUT /api/v1/{endpoint}/{contentId}相当のJSON、Shopify＝POST /admin/api/2024-01/pages.json相当のPage資源JSON、Movable Type＝ENTRY/FIELD区切りのImport形式テキストを実際に出力（projects/regression-web/exports/配下の実出力ファイルで確認）。fetch呼び出しはclaudeApi.ts以外に存在せず、認証情報の扱いもコード上に無い。
+2. website専用ガード: 適合。3アダプタとも`category !== "website"`で明示的Errorを投げる（wordpressアダプタと同じパターン）。
+3. コスト計測（NF-403）: 適合。`estimateCostUsd`はusage(inputTokens/outputTokens)×config単価の純計算、claudeApi.tsはAnthropic APIレスポンスの`usage.input_tokens/output_tokens`を実際に読み取ってから`recordGenerationCost`を呼ぶ。manualHandoff.tsはtracker.ts・costを一切import/呼出しせず、水増しなし。`cost:report`はCLIに登録済み（src/cli/index.ts）。
+4. EPS出力アダプタ: 適合。svgToEps.tsはrect/circle/path・絶対座標M/L/C/Zのみ許可し、transform/gradient/未対応タグ/相対座標/曲線コマンド(Q/S/T/A等)を検出すると変換せず理由付きunsupportedReasonを返す。epsExport.tsはunsupportedを警告としてCONVERSION_NOTES.mdに記録し「できた」と偽らない。tests/svgToEps.test.ts（9件）が各分岐を検証、実出力（icon-128.eps等）も正しいPostScript構文を確認。
+5. ユニットテスト・回帰: 適合。`npm run typecheck`エラー0、`npm test`は48件中48件pass（完了報告の主張と一致）。
+6. 未実装項目の明記: 適合。README.mdにF-304・NF-302・NF-303・Lottie/HTML5バナー・F-603がそれぞれ理由付きで「未実装」と明記され、対応するコードもリポジトリ上に存在しない（grep等で確認）。F-304は人間判断欄でも確認済み。
+
+総合判定：合格。status を checking → approval へ進めました。
+
+## 人間確認（2026-08-03）
+ヒューマンチェックOK。status: approval → done。非WordPress CMSアダプタ・コスト計測・EPS出力の実装完了として確定。

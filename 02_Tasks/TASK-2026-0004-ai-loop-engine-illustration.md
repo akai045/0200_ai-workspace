@@ -3,7 +3,7 @@ task_id: TASK-2026-0004
 title: AI LOOPエンジン Phase2追加（イラストカテゴリ）の実装
 objective: 要件定義書のF-104（イラスト生成）に対応するテンプレートを実装し、Webサイト・ロゴ・バナー・チラシと同じデザイン生成→実装生成→自動検証→収束判定→人間承認の一気通貫ループをイラストカテゴリでも実働させる
 project: PROJECT-002
-status: checking
+status: done
 tier: T1
 owner: build-doer
 checker: checker
@@ -68,3 +68,19 @@ TASK-2026-0003でGraphicDesignSpec（アートボード構成）・graphicPostPr
 **受入条件との対応**：TASK frontmatter記載の受入条件を全項目満たしたと判断。特に「コア（core/types.ts・orchestrator・verification/index.ts）の改修を行わない」「design:select必須・人間チェックポイント維持」「意図的な不備→不適合→修正→適合の反復」は上記の通り実機で確認済み。Lottie出力はTASK-2026-0004の対立的推論#3の通り、EPS・HTML5バナーアニメーションと同じ扱いで未実装のままとし、READMEにその旨を追記した。
 
 **次のアクション**：Checker検査（受入条件との3値判定）→ 通れば人間確認。
+
+## Checker検査（2026-08-03T00:00:00+09:00実行・実行日時不明のため申告不可・確認当日日付を記載）
+
+独立した第三者として、Doerの完了報告を鵜呑みにせずコード・テスト・成果物ファイルを直接確認した。
+
+1. **illustrationテンプレートimplemented:true・既存CLIコマンド動作** → **適合**。`src/templates/illustration/template.ts`は`implemented: true`の実テンプレート（`requiredVerificationChecks`6項目）。`src/templates/index.ts`が`registerIllustrationTemplateStub`から`registerIllustrationTemplate`に差し替え済み。`sample-illustration/project.json`が`status:"approved"`まで到達しており、CLI一連（init〜approve〜export）が実際に動作したことをruns/events.jsonl（design.generated→design.selected→implementation.generated→verification.completed×3→export.completed×2）で確認。
+2. **コア無改修でTASK-2026-0003基盤を流用** → **適合**。コミット78ba7deの`--stat`で変更ファイルは`illustration/template.ts`・`templates/index.ts`・`outputSizes.ts`・README・PROGRESS・タスクファイルのみ。`core/types.ts`・`orchestrator/`・`verification/index.ts`は変更ゼロを確認。
+3. **outputSizes既定値・design:select必須の人間チェックポイント維持** → **適合**。`outputSizes.ts`に`illustration: [{label:"eyecatch-1200x630", width:1200, height:630}]`を確認。`design:select`を経ない`impl:generate`拒否は既存オーケストレータの汎用ゲート（カテゴリ非依存）であり、本タスクで変更していないことを確認。
+4. **意図的不備→不適合→修正→適合の反復を実機確認** → **適合**。`verification-results/v1.json`（brand-consistency不適合、ブランドカラー近似画素0.0%）→`v2.json`（brand-consistency 42.2%で再不適合、visual-diffも不適合）→`v3.json`（全6項目適合、convergence.converged:true）を実ファイルで確認。v1のSVG実体（`implementation-versions/v1/output/artboards/eyecatch-1200x630.svg`）にブランドカラー（#3b2a20,#c9a24b）と無関係な色（#00e5ff,#39ff14）が実際に含まれることも確認済み。
+5. **Lottie未実装・README明記** → **適合**。`template.ts`冒頭コメントおよびREADME要件対応表・「未実装」表の両方にLottieがEPS・HTML5バナーと同列で明記されていることを確認。
+6. **node --testに回帰なし** → **適合**。手元で`npm run typecheck`（エラー0）・`npm test`実行、48件全件pass・fail 0を確認。当該コミットで`tests/`ディレクトリ自体に変更が無いことも確認（既存テストへの影響ゼロという主張と整合）。
+
+**総合判定：合格**。全6受入条件が適合であり、不適合・判定不能はゼロ。README要件対応表もタスク内容と整合している。`status`を`checking`から`approval`へ遷移させた。次は人間による`approval→done`の最終承認待ち。
+
+## 人間確認（2026-08-03）
+ヒューマンチェックOK。status: approval → done。イラストカテゴリの実装完了として確定。
