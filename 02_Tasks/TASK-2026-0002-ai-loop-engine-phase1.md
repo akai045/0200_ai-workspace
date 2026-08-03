@@ -52,4 +52,12 @@ deadline:
 作業ログはこのファイルに追記していく。status は frontmatter でのみ管理する。
 
 ## 作業ログ（Doer・2026-08-03）
-- （実装しながら追記）
+- 既存実装を確認：core/types・config、store（fileStore/projectStore/paths）、materials（ledger/gapDetection/integrity）、generation（design/implEngine・manualHandoff/claudeApi）、templates（registry+website実装+logo/illustration/banner登録スタブ）、verification（htmlLint/cssLint/jsLint/accessibility/responsive/visualDiff/materialsUnchanged/convergence/report）は実装済み・健全と判断。PROGRESS.mdのE-3〜E-7相当。
+- 残タスクのステップリスト（セッション中断耐性・ADR-0004）：
+  1. [ ] `src/orchestrator/`：design:generate→design:select→impl:generate→verifyの状態遷移＋人間チェックポイント（design:select必須・収束後もapprove必須）を実装
+  2. [ ] `src/adapters/`：output/staticHtml（zip）・cms/wordpress（テーマファイル生成）・その他CMS登録スタブ
+  3. [ ] `src/cli/index.ts`：project:init/material:add/design:generate/design:select/impl:generate/verify/report/export/approve
+  4. [ ] `tests/`：store・convergence・materials整合性のユニットテスト（node --test）
+  5. [ ] サンプル案件で一気通貫動作確認（意図的lintエラー→不合格→修正→合格）
+  6. [ ] README.md／PROGRESS.mdを実装状況に合わせて更新、コミット
+- 各ステップ完了ごとにこのチェックリストを更新する。
