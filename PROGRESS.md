@@ -4,8 +4,8 @@
 > 作業を一段落させるたびにここを更新する。詳細な設計は `SPEC.md`、不変条件は `CLAUDE.md`、方針変更は `08_Decisions/`（ADR）を正とする。
 
 - 最終更新: 2026-08-03
-- 現在地: **P1-V完了（PROJECT-001、approval待ち・変更なし）に加え、PROJECT-002「AI LOOPエンジン開発」はTASK-2026-0002（Phase1・Webサイト向けコアループ）が人間確認OKでstatus: done。続けてTASK-2026-0003（Phase2・ロゴ／バナー／チラシ向けコアループ）を実装完了（E-12〜E-16）。サンプル案件（logoカテゴリ）でdesign:generate→select→impl:generate→verify（意図的なSVG構造不備で不適合→修正→適合）→approve→export（static-html）の一気通貫動作を確認し、Webサイトカテゴリの回帰も無いことを確認した。status: doing のまま（Checker未実施）。詳細は [[ADR-0007-ai-loop-engine-build]]。**
-- 直近の人間アクション：①`02_Tasks/TASK-2026-0001-watashiwa-lulu-web.md` と `03_Outputs/PROJECT-001-watashiwa-lulu/` を確認し、問題なければ status を `approval` → `done` に変更する。②TASK-2026-0003をCheckerで検査してもらい（受入条件との3値判定）、通れば人間が `doing` → 完了確認の要否を判断する。
+- 現在地: **P1-V完了（PROJECT-001、approval待ち・変更なし）に加え、PROJECT-002「AI LOOPエンジン開発」はTASK-2026-0002（Phase1・Webサイト向けコアループ）・TASK-2026-0003（Phase2・ロゴ／バナー／チラシ向けコアループ）とも人間確認OKでstatus: done。詳細は [[ADR-0007-ai-loop-engine-build]]。既知の未実装範囲（イラスト中身・CMSライブ投入・EPS/Lottie/HTML5バナー等の拡張出力形式・コスト計測等）はREADME.mdの対応表参照。**
+- 直近の人間アクション：`02_Tasks/TASK-2026-0001-watashiwa-lulu-web.md` と `03_Outputs/PROJECT-001-watashiwa-lulu/` を確認し、問題なければ status を `approval` → `done` に変更する。ai-loop-engineの次の着手範囲（イラスト実装／CMSライブ投入等）は人間の指示待ち。
 
 ---
 
