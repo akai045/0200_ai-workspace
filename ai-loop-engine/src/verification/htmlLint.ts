@@ -1,5 +1,6 @@
 /** F-402: HTMLの構文・規約チェック（htmlhint）。 */
-import { HTMLHint } from "htmlhint";
+import htmlhint from "htmlhint";
+const { HTMLHint } = htmlhint;
 import type { VerificationCheck } from "../core/types.js";
 import { readTextFilesByExt } from "./readOutputFiles.js";
 

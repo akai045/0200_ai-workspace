@@ -4,8 +4,8 @@
 > 作業を一段落させるたびにここを更新する。詳細な設計は `SPEC.md`、不変条件は `CLAUDE.md`、方針変更は `08_Decisions/`（ADR）を正とする。
 
 - 最終更新: 2026-08-03
-- 現在地: **P1-V完了（PROJECT-001、approval待ち・変更なし）に加え、新規 PROJECT-002「AI LOOPエンジン開発」に着手（TASK-2026-0002、status: doing）。要件定義書（`00_Inbox/00_attachment_files/20260803/AI_LOOP_要件定義書_v1−1.docx`）に基づき、Webサイト向けAI LOOP（デザイン生成→実装→検証→修正）を実働するソフトウェアとして `ai-loop-engine/` に構築中。詳細は [[ADR-0007-ai-loop-engine-build]]。**
-- 直近の人間アクション：①`02_Tasks/TASK-2026-0001-watashiwa-lulu-web.md` と `03_Outputs/PROJECT-001-watashiwa-lulu/` を確認し、問題なければ status を `approval` → `done` に変更する。②TASK-2026-0002の完了報告（Checker検査後）を確認し、`approval` → `done` の要否を判断する。
+- 現在地: **P1-V完了（PROJECT-001、approval待ち・変更なし）に加え、PROJECT-002「AI LOOPエンジン開発」（TASK-2026-0002）はE-1〜E-11のスキャフォールド〜CLI〜ユニットテストまで実装完了、サンプル案件（sample-site）でdesign:generate→select→impl:generate→verify（意図的lintエラーで不適合→修正→適合）→approve→export（static-html／wordpress）の一気通貫動作を確認した。status: doing のまま（Checker未実施）。詳細は [[ADR-0007-ai-loop-engine-build]]。**
+- 直近の人間アクション：①`02_Tasks/TASK-2026-0001-watashiwa-lulu-web.md` と `03_Outputs/PROJECT-001-watashiwa-lulu/` を確認し、問題なければ status を `approval` → `done` に変更する。②TASK-2026-0002をCheckerで検査してもらい（受入条件との3値判定）、通れば人間が `doing` → 完了確認の要否を判断する。
 
 ---
 
@@ -93,16 +93,16 @@
 | ID | 成果物 | 状態 | メモ |
 |----|--------|------|------|
 | E-1 | ガバナンス文書（ADR-0007／PROJECT-002／TASK-2026-0002） | ✅ | |
-| E-2 | `ai-loop-engine/` スキャフォールド（package.json/tsconfig/config/README） | 🔄 | |
-| E-3 | core/types + ファイルベースJSONストア（版管理） | ⬜ | |
-| E-4 | templates registry + website テンプレート + ロゴ/イラスト/バナー登録スタブ | ⬜ | |
-| E-5 | materials ledger（支給素材台帳・固定フラグ・過不足判定） | ⬜ | |
-| E-6 | generation engines（design/impl・manualHandoff/claudeApi） | ⬜ | |
-| E-7 | verification engine（lint/a11y/responsive/visualDiff/materialsUnchanged/report） | ⬜ | |
-| E-8 | orchestrator（収束判定・人間チェックポイント） | ⬜ | |
-| E-9 | output/CMSアダプタ（staticExport／wordpress）+ レジストリ | ⬜ | |
-| E-10 | CLI | ⬜ | |
-| E-11 | サンプル案件での一気通貫動作確認＋ユニットテスト | ⬜ | |
+| E-2 | `ai-loop-engine/` スキャフォールド（package.json/tsconfig/config/README） | ✅ | |
+| E-3 | core/types + ファイルベースJSONストア（版管理） | ✅ | |
+| E-4 | templates registry + website テンプレート + ロゴ/イラスト/バナー登録スタブ | ✅ | |
+| E-5 | materials ledger（支給素材台帳・固定フラグ・過不足判定） | ✅ | |
+| E-6 | generation engines（design/impl・manualHandoff/claudeApi） | ✅ | |
+| E-7 | verification engine（lint/a11y/responsive/visualDiff/materialsUnchanged/report） | ✅ | |
+| E-8 | orchestrator（収束判定・人間チェックポイント） | ✅ | design:select必須・approve明示操作必須を実装 |
+| E-9 | output/CMSアダプタ（staticHtml／wordpress）+ レジストリ | ✅ | WordPress以外（microCMS/Shopify/Movable Type）は登録スタブのみ |
+| E-10 | CLI | ✅ | project:init〜approveの9コマンド |
+| E-11 | サンプル案件での一気通貫動作確認＋ユニットテスト | ✅ | 意図的なlintエラー（重複id）→不適合→修正→適合の反復を実機確認。node --test 17件通過 |
 
 ---
 
@@ -123,3 +123,4 @@
 | 2026-07-21 | P1-V実施。PROJECT-001／TASK-2026-0001「わたしはルル」Webサイト制作（ロゴ／WPテンプレート／HTML）でDoer→Checkerループを実行、status: approval。 |
 | 2026-07-21 | TASK-2026-0001に改修依頼（レスポンシブ・ハンバーガーメニュー）。status: doing→Checker再検証→approval。差し戻し発生時のDoer→Checkerループも動作確認できた。 |
 | 2026-08-03 | AI_LOOP要件定義書v1.1を受け、PROJECT-002/TASK-2026-0002を起票。ADR-0007でVault運用ゲートとの切り分けを明記し、`ai-loop-engine/`の本格開発に着手。 |
+| 2026-08-03 | ai-loop-engine E-3〜E-11を実装完了。orchestrator（人間チェックポイント2箇所）・adapters（static-html/wordpress）・CLI（9コマンド）・ユニットテスト（17件）を追加し、サンプル案件で一気通貫動作（不適合→修正→適合の反復含む）を実機確認。次はChecker検査待ち。 |
